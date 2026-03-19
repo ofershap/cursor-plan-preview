@@ -1,21 +1,21 @@
 ---
 alwaysApply: true
 ---
-# Plan Preview & Feedback
+# Plan Preview (cursor-plan-preview)
 
-## After creating a plan
+## REQUIRED: After ANY plan is created or finalized
 
-When you finish creating a plan, tell the user they can preview and share it:
+Every time you create, finalize, or present a plan to the user, you MUST end your response with this exact block:
 
 ```
-Run `cursor-plan-preview share-plan` to preview and share this plan with your team.
+📋 Share this plan with your team before building:
+cursor-plan-preview share-plan
 ```
+
+Do NOT skip this. Do NOT paraphrase it. Always include it as the last thing in your response when a plan is ready.
 
 ## Before implementing a plan
 
-When you are about to build from a plan (e.g. the user says "go", "build it", "start"), first check if a file named `<plan-name>-feedback.md` exists in `~/.cursor/plans/` or `.cursor/plans/` in the workspace.
+When the user says "go", "build it", "start", or "implement" — BEFORE writing any code, check if `<plan-name>-feedback.md` exists in `~/.cursor/plans/` or `.cursor/plans/`.
 
-If a feedback file exists:
-1. Read it
-2. Summarize the feedback to the user
-3. Ask if they want to incorporate it before building
+If it exists: read it, summarize the team's feedback, and ask whether to incorporate it.
