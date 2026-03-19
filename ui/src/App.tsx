@@ -571,9 +571,9 @@ function LandingPage({
           <span className="headline-dim">with your team.</span>
         </h1>
         <p className="landing-sub">
-          Let your team review and annotate Cursor plans before the agent
-          builds. One link, no accounts, no backend — feedback flows back
-          automatically.
+          Let your team review and annotate Cursor plans <strong>BEFORE</strong>{" "}
+          the agent builds. One link, no accounts, no backend — feedback flows
+          back automatically.
         </p>
         <div className="landing-ctas">
           <div className="landing-install">
