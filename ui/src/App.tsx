@@ -346,6 +346,112 @@ function renderMarkdown(markdown: string, annotations: Annotation[]): string {
   return html;
 }
 
+function LandingPage() {
+  return (
+    <div className="landing">
+      <div className="landing-hero">
+        <div className="landing-logo">
+          <span className="logo-icon">✚</span>
+          <span className="logo-text">CPR</span>
+        </div>
+        <h1 className="landing-title">Cursor Plan Preview</h1>
+        <p className="landing-tagline">
+          Your agent writes a plan. Your team should see it before it builds.
+        </p>
+        <div className="landing-install">
+          <code>npx cursor-plan-preview --setup</code>
+        </div>
+        <a
+          href="https://github.com/ofershap/cursor-plan-preview"
+          className="landing-cta"
+          target="_blank"
+          rel="noopener"
+        >
+          View on GitHub
+        </a>
+      </div>
+
+      <div className="landing-steps">
+        <div className="step">
+          <div className="step-num">1</div>
+          <div className="step-content">
+            <h3>Agent saves a plan</h3>
+            <p>
+              Cursor's plan mode generates a .plan.md file. CPR hooks into the
+              save and opens it in your browser.
+            </p>
+          </div>
+        </div>
+        <div className="step">
+          <div className="step-num">2</div>
+          <div className="step-content">
+            <h3>You annotate and share</h3>
+            <p>
+              Highlight text, add comments, suggest replacements. Click Share to
+              get a URL with everything encoded in it.
+            </p>
+          </div>
+        </div>
+        <div className="step">
+          <div className="step-num">3</div>
+          <div className="step-content">
+            <h3>Team reviews, agent adapts</h3>
+            <p>
+              Your teammate opens the link, adds feedback, shares back. Export
+              the annotations and the agent reads them before building.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <div className="landing-features">
+        <div className="feature">
+          <span className="feature-icon">🔒</span>
+          <span>
+            No server. Plan data lives only in the URL hash, never sent
+            anywhere.
+          </span>
+        </div>
+        <div className="feature">
+          <span className="feature-icon">⚡</span>
+          <span>One command install. Works with existing Cursor hooks.</span>
+        </div>
+        <div className="feature">
+          <span className="feature-icon">🔗</span>
+          <span>
+            Share via any channel. Slack, email, DM. No accounts needed.
+          </span>
+        </div>
+      </div>
+
+      <div className="landing-footer">
+        <a
+          href="https://github.com/ofershap/cursor-plan-preview"
+          target="_blank"
+          rel="noopener"
+        >
+          GitHub
+        </a>
+        <span className="landing-dot">·</span>
+        <a
+          href="https://www.npmjs.com/package/cursor-plan-preview"
+          target="_blank"
+          rel="noopener"
+        >
+          npm
+        </a>
+        <span className="landing-dot">·</span>
+        <span className="landing-by">
+          by{" "}
+          <a href="https://github.com/ofershap" target="_blank" rel="noopener">
+            ofershap
+          </a>
+        </span>
+      </div>
+    </div>
+  );
+}
+
 export default function App() {
   const [plan, setPlan] = useState<ParsedPlan | null>(null);
   const [annotations, setAnnotations] = useState<Annotation[]>([]);
@@ -384,6 +490,11 @@ export default function App() {
   }, []);
 
   function fetchPlan() {
+    const isGhPages = window.location.hostname.includes("github.io");
+    if (isGhPages) {
+      setLoading(false);
+      return;
+    }
     fetch("/api/plan")
       .then((r) => r.json())
       .then((data: ParsedPlan) => {
@@ -452,13 +563,7 @@ export default function App() {
   }
 
   if (!plan) {
-    return (
-      <div className="loading">
-        <div className="error-icon">⚠</div>
-        <span>No plan found. Open a plan file with:</span>
-        <code>cursor-plan-preview serve &lt;file.plan.md&gt;</code>
-      </div>
-    );
+    return <LandingPage />;
   }
 
   return (
