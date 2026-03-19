@@ -1,16 +1,21 @@
 ---
 alwaysApply: true
 ---
-# Plan Feedback
+# Plan Preview & Feedback
 
-Before starting implementation from a plan, check if a feedback file exists.
+## After creating a plan
 
-When you are about to build from a plan (e.g. the user says "go", "build it", "start", or "implement the plan"), first check if a file named `<plan-name>-feedback.md` exists in `~/.cursor/plans/` or `.cursor/plans/` in the workspace.
+When you finish creating a plan, tell the user they can preview and share it:
+
+```
+Run `cursor-plan-preview share-plan` to preview and share this plan with your team.
+```
+
+## Before implementing a plan
+
+When you are about to build from a plan (e.g. the user says "go", "build it", "start"), first check if a file named `<plan-name>-feedback.md` exists in `~/.cursor/plans/` or `.cursor/plans/` in the workspace.
 
 If a feedback file exists:
 1. Read it
 2. Summarize the feedback to the user
 3. Ask if they want to incorporate it before building
-4. If yes, update your understanding of the plan accordingly
-
-This ensures team annotations from cursor-plan-preview are applied before implementation begins.
