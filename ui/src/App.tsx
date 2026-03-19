@@ -915,7 +915,6 @@ export default function App() {
           >
             Cursor Plan Preview
           </a>
-          {sharedMode && <span className="shared-badge">Shared Preview</span>}
         </div>
         <div className="header-actions">
           {annotations.length > 0 && !sharedMode && (
