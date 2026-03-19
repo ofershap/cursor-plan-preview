@@ -536,7 +536,7 @@ function LandingPage({
     <div className="landing">
       <nav className="landing-nav">
         <div className="landing-nav-inner">
-          <a href="/" className="nav-left">
+          <a href="./" className="nav-left">
             <span className="logo-icon">✚</span>
             <span className="logo-text">CPR</span>
           </a>
