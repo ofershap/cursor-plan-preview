@@ -1,6 +1,6 @@
 {
   "name": "cursor-plan-preview",
-  "version": "0.5.1",
+  "version": "0.5.2",
   "description": "Preview, annotate, and share Cursor plan mode files with your team",
   "type": "module",
   "bin": {

@@ -89,6 +89,7 @@ body {
   gap: 6px;
   font-weight: 700;
   font-size: 18px;
+  text-decoration: none;
 }
 
 .logo-icon {
@@ -105,6 +106,17 @@ body {
 .header-subtitle {
   color: var(--text-muted);
   font-size: 13px;
+}
+
+.header-subtitle-link {
+  color: var(--text-muted);
+  font-size: 13px;
+  text-decoration: none;
+  transition: color 0.15s;
+}
+
+.header-subtitle-link:hover {
+  color: var(--text);
 }
 
 .shared-badge {

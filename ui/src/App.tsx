@@ -897,11 +897,23 @@ export default function App() {
     <div className="app">
       <header className="header">
         <div className="header-left">
-          <span className="logo">
+          <a
+            href="https://ofershap.github.io/cursor-plan-preview/"
+            className="logo"
+            target="_blank"
+            rel="noopener"
+          >
             <span className="logo-icon">✚</span>
             <span className="logo-text">CPR</span>
-          </span>
-          <span className="header-subtitle">Cursor Plan Preview</span>
+          </a>
+          <a
+            href="https://ofershap.github.io/cursor-plan-preview/"
+            className="header-subtitle-link"
+            target="_blank"
+            rel="noopener"
+          >
+            Cursor Plan Preview
+          </a>
           {sharedMode && <span className="shared-badge">Shared Preview</span>}
         </div>
         <div className="header-actions">
