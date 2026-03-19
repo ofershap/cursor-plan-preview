@@ -209,6 +209,22 @@ body {
   padding: 0 4px;
 }
 
+.btn-copy {
+  background: var(--accent) !important;
+  color: white !important;
+  border: none;
+  padding: 6px 14px !important;
+  border-radius: 4px;
+  font-size: 12px !important;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.btn-copy:hover {
+  opacity: 0.9;
+}
+
 /* Layout */
 .layout {
   display: flex;
@@ -401,7 +417,6 @@ mark.ann-comment {
   border-bottom: 2px solid var(--blue);
   border-radius: 2px;
   padding: 0 2px;
-  cursor: help;
 }
 
 mark.ann-replace {
@@ -409,6 +424,25 @@ mark.ann-replace {
   color: var(--amber);
   border-radius: 2px;
   padding: 0 2px;
+}
+
+mark.ann-insert {
+  background: rgba(34, 197, 94, 0.2);
+  border-bottom: 2px solid var(--green);
+  border-radius: 2px;
+  padding: 0 2px;
+}
+
+.ann-note {
+  display: block;
+  margin: 6px 0 8px;
+  padding: 6px 10px;
+  border-left: 3px solid var(--blue);
+  background: var(--surface2);
+  border-radius: 0 4px 4px 0;
+  font-size: 13px;
+  color: var(--text-secondary);
+  line-height: 1.5;
 }
 
 /* Annotation toolbar */

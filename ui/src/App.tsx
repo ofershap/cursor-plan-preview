@@ -348,24 +348,33 @@ function renderMarkdown(markdown: string, annotations: Annotation[]): string {
     if (!ann.originalText) continue;
     const escaped = ann.originalText.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
     const re = new RegExp(escaped);
+    const noteHtml = ann.text
+      ? `<span class="ann-note" style="border-left-color: ${ANNOTATION_COLORS[ann.type]}">${ann.text}</span>`
+      : "";
 
     switch (ann.type) {
       case "DELETION":
         html = html.replace(
           re,
-          `<mark class="ann-delete">${ann.originalText}</mark>`,
+          `<mark class="ann-delete">${ann.originalText}</mark>${noteHtml}`,
         );
         break;
       case "COMMENT":
         html = html.replace(
           re,
-          `<mark class="ann-comment" title="${(ann.text ?? "").replace(/"/g, "&quot;")}">${ann.originalText}</mark>`,
+          `<mark class="ann-comment">${ann.originalText}</mark>${noteHtml}`,
         );
         break;
       case "REPLACEMENT":
         html = html.replace(
           re,
           `<mark class="ann-replace">${ann.originalText} \u2192 ${ann.text ?? ""}</mark>`,
+        );
+        break;
+      case "INSERTION":
+        html = html.replace(
+          re,
+          `<mark class="ann-insert">${ann.originalText}</mark>${noteHtml}`,
         );
         break;
     }
@@ -844,6 +853,16 @@ export default function App() {
             value={shareUrl}
             onClick={(e) => (e.target as HTMLInputElement).select()}
           />
+          <button
+            className="btn-copy"
+            onClick={() => {
+              navigator.clipboard.writeText(shareUrl);
+              setCopied(true);
+              setTimeout(() => setCopied(false), 2000);
+            }}
+          >
+            {copied ? "Copied!" : "Copy"}
+          </button>
           <button onClick={() => setShareUrl(null)}>✕</button>
         </div>
       )}
