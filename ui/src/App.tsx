@@ -924,7 +924,13 @@ export default function App() {
           )}
           <ThemeToggle theme={theme} toggleTheme={toggleTheme} />
           <button
-            className={sharedMode ? "btn-finish" : "btn-primary"}
+            className={
+              sharedMode
+                ? hasNewNotes
+                  ? "btn-finish"
+                  : "btn-finish-outline"
+                : "btn-primary"
+            }
             onClick={handleShare}
           >
             {sharedMode ? "Finish Review" : "Share Plan"}
