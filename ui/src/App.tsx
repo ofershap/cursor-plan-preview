@@ -918,7 +918,10 @@ export default function App() {
             </button>
           )}
           <ThemeToggle theme={theme} toggleTheme={toggleTheme} />
-          <button className="btn-primary" onClick={handleShare}>
+          <button
+            className={sharedMode ? "btn-finish" : "btn-primary"}
+            onClick={handleShare}
+          >
             {sharedMode ? "Finish Review" : "Share Plan"}
           </button>
         </div>

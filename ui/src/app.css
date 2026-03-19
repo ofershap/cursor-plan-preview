@@ -108,9 +108,9 @@ body {
 }
 
 .shared-badge {
-  background: var(--accent-glow);
-  border: 1px solid var(--accent);
-  color: var(--accent);
+  background: rgba(245, 158, 11, 0.15);
+  border: 1px solid var(--amber);
+  color: var(--amber);
   font-size: 11px;
   padding: 2px 8px;
   border-radius: 12px;
@@ -136,6 +136,22 @@ body {
 }
 
 .btn-primary:hover {
+  opacity: 0.85;
+}
+
+.btn-finish {
+  background: var(--red);
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: var(--radius);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.15s;
+}
+
+.btn-finish:hover {
   opacity: 0.85;
 }
 
@@ -199,16 +215,18 @@ body {
 }
 
 .reviewer-banner {
-  padding: 10px 24px;
-  background: color-mix(in srgb, var(--blue) 10%, var(--surface));
-  border-bottom: 1px solid color-mix(in srgb, var(--blue) 30%, var(--border));
-  font-size: 13px;
-  color: var(--text-secondary);
+  padding: 12px 24px;
+  background: color-mix(in srgb, var(--amber) 12%, var(--surface));
+  border-bottom: 1px solid color-mix(in srgb, var(--amber) 30%, var(--border));
+  border-left: 3px solid var(--amber);
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text);
   line-height: 1.5;
 }
 
 .reviewer-banner strong {
-  color: var(--text);
+  color: var(--amber);
 }
 
 /* Toast */
