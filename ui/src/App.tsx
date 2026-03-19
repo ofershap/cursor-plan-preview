@@ -22,114 +22,66 @@ const ANNOTATION_LABELS: Record<AnnotationType, string> = {
   GLOBAL_COMMENT: "Global Note",
 };
 
-function AnnotationToolbar({
+function CommentPopup({
   position,
-  onSelect,
-  onClose,
-}: {
-  position: { x: number; y: number };
-  onSelect: (type: AnnotationType) => void;
-  onClose: () => void;
-}) {
-  const types: AnnotationType[] = [
-    "DELETION",
-    "REPLACEMENT",
-    "COMMENT",
-    "INSERTION",
-  ];
-  return (
-    <div
-      className="annotation-toolbar"
-      style={{ left: position.x, top: position.y - 48 }}
-    >
-      {types.map((t) => (
-        <button
-          key={t}
-          className="toolbar-btn"
-          style={{ borderColor: ANNOTATION_COLORS[t] }}
-          onClick={() => onSelect(t)}
-          title={ANNOTATION_LABELS[t]}
-        >
-          {t === "DELETION" && "✂"}
-          {t === "REPLACEMENT" && "↔"}
-          {t === "COMMENT" && "💬"}
-          {t === "INSERTION" && "+"}
-        </button>
-      ))}
-      <button className="toolbar-btn toolbar-close" onClick={onClose}>
-        ✕
-      </button>
-    </div>
-  );
-}
-
-function AnnotationModal({
-  type,
-  originalText,
   onSave,
   onCancel,
 }: {
-  type: AnnotationType;
-  originalText: string;
+  position: { top: number; left: number };
   onSave: (text: string) => void;
   onCancel: () => void;
 }) {
   const [text, setText] = useState("");
-  const needsText =
-    type === "REPLACEMENT" || type === "COMMENT" || type === "INSERTION";
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const popupRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    if (!needsText) onSave("");
-  }, [needsText, onSave]);
+    textareaRef.current?.focus();
+  }, []);
 
-  if (!needsText) return null;
-
-  const placeholder =
-    type === "REPLACEMENT"
-      ? "Replace with..."
-      : type === "INSERTION"
-        ? "Insert text..."
-        : "Add comment...";
+  useEffect(() => {
+    const popup = popupRef.current;
+    if (!popup) return;
+    const rect = popup.getBoundingClientRect();
+    if (rect.bottom > window.innerHeight - 8) {
+      popup.style.top = `${position.top - rect.height - 8}px`;
+    }
+  }, [position]);
 
   return (
-    <div className="modal-overlay" onClick={onCancel}>
-      <div className="modal" onClick={(e) => e.stopPropagation()}>
-        <div
-          className="modal-header"
-          style={{ borderColor: ANNOTATION_COLORS[type] }}
-        >
-          <span>{ANNOTATION_LABELS[type]}</span>
-          {originalText && (
-            <span className="modal-original">
-              "{originalText.slice(0, 60)}"
-            </span>
-          )}
-        </div>
+    <>
+      <div className="comment-backdrop" onClick={onCancel} />
+      <div
+        ref={popupRef}
+        className="comment-popup"
+        style={{ top: position.top, left: position.left }}
+      >
         <textarea
-          autoFocus
-          className="modal-textarea"
-          placeholder={placeholder}
+          ref={textareaRef}
+          className="comment-popup-textarea"
+          placeholder="Leave a comment..."
           value={text}
           onChange={(e) => setText(e.target.value)}
           onKeyDown={(e) => {
-            if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) onSave(text);
+            if (e.key === "Enter" && (e.metaKey || e.ctrlKey) && text.trim()) {
+              onSave(text.trim());
+            }
             if (e.key === "Escape") onCancel();
           }}
+          rows={2}
         />
-        <div className="modal-actions">
-          <button className="btn-secondary" onClick={onCancel}>
-            Cancel
-          </button>
+        <div className="comment-popup-actions">
+          <span className="comment-popup-hint">⌘+Enter</span>
           <button
-            className="btn-primary"
-            style={{ background: ANNOTATION_COLORS[type] }}
-            onClick={() => onSave(text)}
+            className="comment-popup-submit"
+            disabled={!text.trim()}
+            onClick={() => text.trim() && onSave(text.trim())}
           >
-            Save
+            Comment
           </button>
         </div>
       </div>
-    </div>
+    </>
   );
 }
 
@@ -137,16 +89,18 @@ function AnnotationSidebar({
   annotations,
   onRemove,
   onGlobalComment,
+  onHoverNote,
 }: {
   annotations: Annotation[];
   onRemove: (id: string) => void;
   onGlobalComment: () => void;
+  onHoverNote: (originalText: string | null) => void;
 }) {
   return (
     <aside className="sidebar">
       <div className="sidebar-header">
         <span className="sidebar-title">
-          Vital Signs
+          Review Notes
           {annotations.length > 0 && (
             <span className="badge">{annotations.length}</span>
           )}
@@ -154,14 +108,14 @@ function AnnotationSidebar({
         <button
           className="btn-ghost"
           onClick={onGlobalComment}
-          title="Add global note"
+          title="Add note not tied to specific text"
         >
           + Note
         </button>
       </div>
       {annotations.length === 0 ? (
         <div className="sidebar-empty">
-          <span>Select text to annotate</span>
+          <span>Click any block to add a comment</span>
         </div>
       ) : (
         <ul className="annotation-list">
@@ -170,8 +124,10 @@ function AnnotationSidebar({
               key={a.id}
               className="annotation-item"
               style={{ borderLeftColor: ANNOTATION_COLORS[a.type] }}
+              onMouseEnter={() => onHoverNote(a.originalText || null)}
+              onMouseLeave={() => onHoverNote(null)}
             >
-              <div className="annotation-type">{ANNOTATION_LABELS[a.type]}</div>
+              {a.author && <div className="annotation-author">{a.author}</div>}
               {a.originalText && (
                 <div className="annotation-original">
                   "{a.originalText.slice(0, 80)}"
@@ -192,77 +148,116 @@ function AnnotationSidebar({
   );
 }
 
+const BLOCK_SELECTOR = "p, li, h1, h2, h3, h4, h5, h6, pre, blockquote, .todos";
+
 function PlanViewer({
   plan,
   annotations,
   onAnnotationCreate,
+  highlightedText,
 }: {
   plan: ParsedPlan;
   annotations: Annotation[];
   onAnnotationCreate: (
     annotation: Omit<Annotation, "id" | "createdAt">,
   ) => void;
+  highlightedText: string | null;
 }) {
   const contentRef = useRef<HTMLDivElement>(null);
-  const [toolbar, setToolbar] = useState<{
-    position: { x: number; y: number };
-    selectedText: string;
-  } | null>(null);
-  const [modal, setModal] = useState<{
-    type: AnnotationType;
-    originalText: string;
+  const metaRef = useRef<HTMLDivElement>(null);
+  const [commentTarget, setCommentTarget] = useState<{
+    element: HTMLElement;
+    text: string;
+    position: { top: number; left: number };
   } | null>(null);
 
-  const handleMouseUp = useCallback(() => {
-    const sel = window.getSelection();
-    if (!sel || sel.isCollapsed || !sel.toString().trim()) {
-      setToolbar(null);
-      return;
+  useEffect(() => {
+    const container = contentRef.current;
+    const meta = metaRef.current;
+    if (!container && !meta) return;
+
+    function findBlock(target: EventTarget | null): HTMLElement | null {
+      if (!(target instanceof HTMLElement)) return null;
+      const el = target.closest(BLOCK_SELECTOR);
+      if (!el || !(el instanceof HTMLElement)) return null;
+      if (container?.contains(el) || meta?.contains(el)) return el;
+      return null;
     }
-    const range = sel.getRangeAt(0);
-    const rect = range.getBoundingClientRect();
-    setToolbar({
-      position: {
-        x: rect.left + rect.width / 2 - 80,
-        y: rect.top + window.scrollY,
-      },
-      selectedText: sel.toString().trim(),
+
+    function onMouseOver(e: MouseEvent) {
+      const block = findBlock(e.target);
+      if (block) block.classList.add("block-hover");
+    }
+
+    function onMouseOut(e: MouseEvent) {
+      const block = findBlock(e.target);
+      if (block) block.classList.remove("block-hover");
+    }
+
+    function onClick(e: MouseEvent) {
+      const block = findBlock(e.target);
+      if (!block) return;
+      if ((e.target as HTMLElement).closest(".comment-popup")) return;
+      const blockText = block.textContent?.trim() ?? "";
+      if (!blockText) return;
+      const rect = block.getBoundingClientRect();
+      setCommentTarget({
+        element: block,
+        text: blockText,
+        position: { top: rect.bottom + 4, left: rect.left },
+      });
+    }
+
+    const targets = [container, meta].filter(Boolean) as HTMLElement[];
+    targets.forEach((t) => {
+      t.addEventListener("mouseover", onMouseOver);
+      t.addEventListener("mouseout", onMouseOut);
+      t.addEventListener("click", onClick);
     });
+
+    return () => {
+      targets.forEach((t) => {
+        t.removeEventListener("mouseover", onMouseOver);
+        t.removeEventListener("mouseout", onMouseOut);
+        t.removeEventListener("click", onClick);
+      });
+    };
   }, []);
 
-  const handleAnnotationSelect = (type: AnnotationType) => {
-    if (!toolbar) return;
-    if (type === "DELETION") {
-      onAnnotationCreate({ type, originalText: toolbar.selectedText });
-      setToolbar(null);
-      window.getSelection()?.removeAllRanges();
-    } else {
-      setModal({ type, originalText: toolbar.selectedText });
-      setToolbar(null);
+  useEffect(() => {
+    const container = contentRef.current;
+    if (!container) return;
+    const prev = container.querySelector(".sidebar-highlight");
+    if (prev) prev.classList.remove("sidebar-highlight");
+    if (!highlightedText) return;
+    const marks = container.querySelectorAll("mark");
+    for (const mark of marks) {
+      if (mark.textContent?.includes(highlightedText.slice(0, 40))) {
+        mark.classList.add("sidebar-highlight");
+        mark.scrollIntoView({ behavior: "smooth", block: "center" });
+        break;
+      }
     }
-  };
+  }, [highlightedText]);
 
-  const handleModalSave = useCallback(
+  const handleCommentSave = useCallback(
     (text: string) => {
-      setModal((current) => {
-        if (!current) return null;
-        onAnnotationCreate({
-          type: current.type,
-          originalText: current.originalText,
-          text,
-        });
-        window.getSelection()?.removeAllRanges();
-        return null;
+      if (!commentTarget) return;
+      onAnnotationCreate({
+        type: "COMMENT",
+        originalText: commentTarget.text.slice(0, 120),
+        text,
       });
+      setCommentTarget(null);
     },
-    [onAnnotationCreate],
+    [commentTarget, onAnnotationCreate],
   );
 
   const renderedBody = renderMarkdown(plan.body, annotations);
 
   return (
     <div className="viewer">
-      <div className="plan-meta">
+      <div className="plan-meta" ref={metaRef}>
         <h1 className="plan-name">{plan.name}</h1>
         {plan.overview && <p className="plan-overview">{plan.overview}</p>}
         {plan.todos.length > 0 && (
@@ -289,24 +284,14 @@ function PlanViewer({
       <div
         ref={contentRef}
         className="plan-body"
-        onMouseUp={handleMouseUp}
         dangerouslySetInnerHTML={{ __html: renderedBody }}
       />
 
-      {toolbar && (
-        <AnnotationToolbar
-          position={toolbar.position}
-          onSelect={handleAnnotationSelect}
-          onClose={() => setToolbar(null)}
-        />
-      )}
-
-      {modal && (
-        <AnnotationModal
-          type={modal.type}
-          originalText={modal.originalText}
-          onSave={handleModalSave}
-          onCancel={() => setModal(null)}
+      {commentTarget && (
+        <CommentPopup
+          position={commentTarget.position}
+          onSave={handleCommentSave}
+          onCancel={() => setCommentTarget(null)}
         />
       )}
     </div>
@@ -348,8 +333,11 @@ function renderMarkdown(markdown: string, annotations: Annotation[]): string {
     if (!ann.originalText) continue;
     const escaped = ann.originalText.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
     const re = new RegExp(escaped);
+    const authorTag = ann.author
+      ? `<span class="ann-author">${ann.author}</span> `
+      : "";
     const noteHtml = ann.text
-      ? `<span class="ann-note" style="border-left-color: ${ANNOTATION_COLORS[ann.type]}">${ann.text}</span>`
+      ? `<span class="ann-note" style="border-left-color: ${ANNOTATION_COLORS[ann.type]}">${authorTag}${ann.text}</span>`
       : "";
 
     switch (ann.type) {
@@ -704,6 +692,7 @@ export default function App() {
   const [annotations, setAnnotations] = useState<Annotation[]>([]);
   const [shareUrl, setShareUrl] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
+  const [highlightedText, setHighlightedText] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [sharedMode, setSharedMode] = useState(false);
   const [exportedPath, setExportedPath] = useState<string | null>(null);
@@ -753,11 +742,27 @@ export default function App() {
       });
   }
 
+  function getReviewerName(): string {
+    let name = localStorage.getItem("cpr-reviewer") ?? "";
+    if (!name) {
+      const input = prompt("Your name (shown on review notes):");
+      name = input?.trim() ?? "";
+      if (name) localStorage.setItem("cpr-reviewer", name);
+    }
+    return name;
+  }
+
   const addAnnotation = useCallback(
     (ann: Omit<Annotation, "id" | "createdAt">) => {
+      const author = getReviewerName();
       setAnnotations((prev) => [
         ...prev,
-        { ...ann, id: crypto.randomUUID(), createdAt: Date.now() },
+        {
+          ...ann,
+          id: crypto.randomUUID(),
+          createdAt: Date.now(),
+          ...(author ? { author } : {}),
+        },
       ]);
     },
     [],
@@ -827,7 +832,7 @@ export default function App() {
         <div className="header-actions">
           {annotations.length > 0 && !sharedMode && (
             <button className="btn-secondary" onClick={handleExportFeedback}>
-              Export Feedback
+              Send to Cursor
             </button>
           )}
           <ThemeToggle theme={theme} toggleTheme={toggleTheme} />
@@ -872,11 +877,13 @@ export default function App() {
           plan={plan}
           annotations={annotations}
           onAnnotationCreate={addAnnotation}
+          highlightedText={highlightedText}
         />
         <AnnotationSidebar
           annotations={annotations}
           onRemove={removeAnnotation}
           onGlobalComment={addGlobalComment}
+          onHoverNote={setHighlightedText}
         />
       </div>
     </div>

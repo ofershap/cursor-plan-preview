@@ -60,17 +60,24 @@ async function decompress(data: Uint8Array): Promise<string> {
 }
 
 function serializeAnnotation(a: Annotation): SerializedAnnotation {
+  const author = a.author ?? "";
   switch (a.type) {
     case "DELETION":
-      return ["D", a.originalText];
+      return author ? ["D", a.originalText, author] : ["D", a.originalText];
     case "REPLACEMENT":
-      return ["R", a.originalText, a.text ?? ""];
+      return author
+        ? ["R", a.originalText, a.text ?? "", author]
+        : ["R", a.originalText, a.text ?? ""];
     case "COMMENT":
-      return ["C", a.originalText, a.text ?? ""];
+      return author
+        ? ["C", a.originalText, a.text ?? "", author]
+        : ["C", a.originalText, a.text ?? ""];
     case "INSERTION":
-      return ["I", a.originalText, a.text ?? ""];
+      return author
+        ? ["I", a.originalText, a.text ?? "", author]
+        : ["I", a.originalText, a.text ?? ""];
     case "GLOBAL_COMMENT":
-      return ["G", a.text ?? ""];
+      return author ? ["G", a.text ?? "", author] : ["G", a.text ?? ""];
   }
 }
 
@@ -81,15 +88,46 @@ function deserializeAnnotation(s: SerializedAnnotation): Annotation {
   };
   switch (s[0]) {
     case "D":
-      return { ...base, type: "DELETION", originalText: s[1] };
+      return {
+        ...base,
+        type: "DELETION",
+        originalText: s[1],
+        ...(s[2] ? { author: s[2] } : {}),
+      };
     case "R":
-      return { ...base, type: "REPLACEMENT", originalText: s[1], text: s[2] };
+      return {
+        ...base,
+        type: "REPLACEMENT",
+        originalText: s[1],
+        text: s[2],
+        ...(s[3] ? { author: s[3] } : {}),
+      };
     case "C":
-      return { ...base, type: "COMMENT", originalText: s[1], text: s[2] };
+      return {
+        ...base,
+        type: "COMMENT",
+        originalText: s[1],
+        text: s[2],
+        ...(s[3] ? { author: s[3] } : {}),
+      };
     case "I":
-      return { ...base, type: "INSERTION", originalText: s[1], text: s[2] };
+      return {
+        ...base,
+        type: "INSERTION",
+        originalText: s[1],
+        text: s[2],
+        ...(s[3] ? { author: s[3] } : {}),
+      };
     case "G":
-      return { ...base, type: "GLOBAL_COMMENT", originalText: "", text: s[1] };
+      return {
+        ...base,
+        type: "GLOBAL_COMMENT",
+        originalText: "",
+        text: s[1],
+        ...(s[2] ? { author: s[2] } : {}),
+      };
+    default:
+      return { ...base, type: "COMMENT", originalText: s[1] ?? "" };
   }
 }
 

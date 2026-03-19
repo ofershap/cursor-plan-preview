@@ -14,6 +14,7 @@
   --purple: #8b5cf6;
   --accent: #e53e3e;
   --accent-glow: rgba(229, 62, 62, 0.15);
+  --hover-bg: rgba(255, 255, 255, 0.06);
   --code-inline: #a78bfa;
   --radius: 8px;
   --font-mono: "JetBrains Mono", "Fira Code", monospace;
@@ -36,6 +37,7 @@
   --purple: #7c3aed;
   --accent: #dc2626;
   --accent-glow: rgba(220, 38, 38, 0.1);
+  --hover-bg: rgba(0, 0, 0, 0.04);
   --code-inline: #7c3aed;
   --nav-bg: rgba(255, 255, 255, 0.85);
   --landing-gradient: radial-gradient(ellipse at 50% 0%, rgba(220, 38, 38, 0.04) 0%, transparent 60%);
@@ -122,7 +124,7 @@ body {
 
 /* Buttons */
 .btn-primary {
-  background: var(--accent);
+  background: var(--green);
   color: white;
   border: none;
   padding: 8px 16px;
@@ -210,7 +212,7 @@ body {
 }
 
 .btn-copy {
-  background: var(--accent) !important;
+  background: var(--green) !important;
   color: white !important;
   border: none;
   padding: 6px 14px !important;
@@ -374,7 +376,7 @@ body {
   color: var(--text);
 }
 .plan-body blockquote {
-  border-left: 3px solid var(--accent);
+  border-left: 3px solid var(--blue);
   padding-left: 16px;
   color: var(--text-muted);
   margin: 12px 0;
@@ -445,102 +447,92 @@ mark.ann-insert {
   line-height: 1.5;
 }
 
-/* Annotation toolbar */
-.annotation-toolbar {
-  position: fixed;
-  display: flex;
-  gap: 4px;
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  padding: 6px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
-  z-index: 200;
-}
-
-.toolbar-btn {
-  background: var(--surface2);
-  border: 1px solid transparent;
+.ann-author {
+  font-weight: 600;
   color: var(--text);
-  width: 32px;
-  height: 32px;
-  border-radius: 6px;
-  cursor: pointer;
-  font-size: 14px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: background 0.1s;
-}
-
-.toolbar-btn:hover {
-  background: var(--bg);
-}
-
-.toolbar-close {
-  color: var(--text-muted);
   font-size: 12px;
-  border-left: 1px solid var(--border);
-  border-radius: 0 6px 6px 0;
-  margin-left: 2px;
 }
 
-/* Modal */
-.modal-overlay {
+mark.sidebar-highlight {
+  outline: 2px solid var(--blue);
+  outline-offset: 2px;
+  border-radius: 3px;
+  transition: outline-color 0.2s;
+}
+
+/* Block hover highlight */
+.plan-body .block-hover,
+.plan-meta .block-hover {
+  background: var(--hover-bg);
+  outline: 1px dashed var(--border);
+  outline-offset: 2px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+/* Comment popup */
+.comment-backdrop {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.6);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 300;
+  z-index: 199;
 }
 
-.modal {
+.comment-popup {
+  position: fixed;
+  z-index: 200;
+  width: 360px;
+  max-width: calc(100vw - 32px);
   background: var(--surface);
   border: 1px solid var(--border);
-  border-radius: 12px;
-  width: 480px;
-  max-width: 90vw;
+  border-radius: 10px;
   overflow: hidden;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.35);
 }
 
-.modal-header {
-  padding: 16px 20px;
-  border-bottom: 2px solid;
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  font-weight: 600;
-}
-
-.modal-original {
-  font-size: 12px;
-  color: var(--text-muted);
-  font-weight: 400;
-  font-style: italic;
-}
-
-.modal-textarea {
+.comment-popup-textarea {
   width: 100%;
-  min-height: 100px;
+  min-height: 56px;
   background: var(--bg);
   border: none;
   color: var(--text);
-  padding: 16px 20px;
-  font-size: 14px;
+  padding: 10px 14px;
+  font-size: 13px;
   font-family: inherit;
-  resize: vertical;
+  resize: none;
   outline: none;
 }
 
-.modal-actions {
+.comment-popup-actions {
   display: flex;
-  justify-content: flex-end;
-  gap: 8px;
-  padding: 12px 20px;
+  align-items: center;
+  justify-content: space-between;
+  padding: 6px 10px;
   border-top: 1px solid var(--border);
+}
+
+.comment-popup-hint {
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+.comment-popup-submit {
+  background: var(--green);
+  color: white;
+  border: none;
+  padding: 4px 12px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.comment-popup-submit:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+.comment-popup-submit:not(:disabled):hover {
+  opacity: 0.9;
 }
 
 /* Sidebar */
@@ -575,7 +567,7 @@ mark.ann-insert {
 }
 
 .badge {
-  background: var(--accent);
+  background: var(--blue);
   color: white;
   font-size: 11px;
   padding: 1px 6px;
@@ -605,15 +597,19 @@ mark.ann-insert {
   padding: 10px 12px;
   position: relative;
   font-size: 13px;
+  cursor: pointer;
+  transition: background 0.15s;
 }
 
-.annotation-type {
-  font-size: 11px;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-  color: var(--text-muted);
-  margin-bottom: 4px;
+.annotation-item:hover {
+  background: var(--hover-bg);
+}
+
+.annotation-author {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--blue);
+  margin-bottom: 2px;
 }
 
 .annotation-original {

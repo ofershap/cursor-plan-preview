@@ -39,9 +39,4 @@ export interface SharePayload {
   a: SerializedAnnotation[];
 }
 
-export type SerializedAnnotation =
-  | ["D", string]
-  | ["R", string, string]
-  | ["C", string, string]
-  | ["I", string, string]
-  | ["G", string];
+export type SerializedAnnotation = [string, ...string[]];
