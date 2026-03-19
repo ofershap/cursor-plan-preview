@@ -28,10 +28,13 @@ function CommentPopup({
   onCancel,
 }: {
   position: { top: number; left: number };
-  onSave: (text: string) => void;
+  onSave: (text: string, author: string) => void;
   onCancel: () => void;
 }) {
   const [text, setText] = useState("");
+  const [name, setName] = useState(
+    () => localStorage.getItem("cpr-reviewer") ?? "",
+  );
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const popupRef = useRef<HTMLDivElement>(null);
 
@@ -48,6 +51,13 @@ function CommentPopup({
     }
   }, [position]);
 
+  function submit() {
+    if (!text.trim()) return;
+    const author = name.trim();
+    if (author) localStorage.setItem("cpr-reviewer", author);
+    onSave(text.trim(), author);
+  }
+
   return (
     <>
       <div className="comment-backdrop" onClick={onCancel} />
@@ -56,6 +66,15 @@ function CommentPopup({
         className="comment-popup"
         style={{ top: position.top, left: position.left }}
       >
+        <input
+          className="comment-popup-name"
+          placeholder="Your name (optional)"
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === "Escape") onCancel();
+          }}
+        />
         <textarea
           ref={textareaRef}
           className="comment-popup-textarea"
@@ -63,9 +82,7 @@ function CommentPopup({
           value={text}
           onChange={(e) => setText(e.target.value)}
           onKeyDown={(e) => {
-            if (e.key === "Enter" && (e.metaKey || e.ctrlKey) && text.trim()) {
-              onSave(text.trim());
-            }
+            if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) submit();
             if (e.key === "Escape") onCancel();
           }}
           rows={2}
@@ -75,7 +92,7 @@ function CommentPopup({
           <button
             className="comment-popup-submit"
             disabled={!text.trim()}
-            onClick={() => text.trim() && onSave(text.trim())}
+            onClick={submit}
           >
             Comment
           </button>
@@ -241,12 +258,13 @@ function PlanViewer({
   }, [highlightedText]);
 
   const handleCommentSave = useCallback(
-    (text: string) => {
+    (text: string, author: string) => {
       if (!commentTarget) return;
       onAnnotationCreate({
         type: "COMMENT",
         originalText: commentTarget.text.slice(0, 120),
         text,
+        ...(author ? { author } : {}),
       });
       setCommentTarget(null);
     },
@@ -742,27 +760,11 @@ export default function App() {
       });
   }
 
-  function getReviewerName(): string {
-    let name = localStorage.getItem("cpr-reviewer") ?? "";
-    if (!name) {
-      const input = prompt("Your name (shown on review notes):");
-      name = input?.trim() ?? "";
-      if (name) localStorage.setItem("cpr-reviewer", name);
-    }
-    return name;
-  }
-
   const addAnnotation = useCallback(
     (ann: Omit<Annotation, "id" | "createdAt">) => {
-      const author = getReviewerName();
       setAnnotations((prev) => [
         ...prev,
-        {
-          ...ann,
-          id: crypto.randomUUID(),
-          createdAt: Date.now(),
-          ...(author ? { author } : {}),
-        },
+        { ...ann, id: crypto.randomUUID(), createdAt: Date.now() },
       ]);
     },
     [],
@@ -775,7 +777,13 @@ export default function App() {
   const addGlobalComment = useCallback(() => {
     const text = prompt("Add a global note for the team:");
     if (text?.trim()) {
-      addAnnotation({ type: "GLOBAL_COMMENT", originalText: "", text });
+      const author = localStorage.getItem("cpr-reviewer") ?? "";
+      addAnnotation({
+        type: "GLOBAL_COMMENT",
+        originalText: "",
+        text,
+        ...(author ? { author } : {}),
+      });
     }
   }, [addAnnotation]);
 
