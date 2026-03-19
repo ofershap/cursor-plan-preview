@@ -1,14 +1,15 @@
 {
   "name": "cursor-plan-preview",
   "version": "0.1.0",
-  "description": "Visual plan preview and team sharing for Cursor's plan mode. Open plans in a beautiful browser UI, annotate inline, share with your team.",
+  "description": "Preview, annotate, and share Cursor plan mode files with your team",
   "type": "module",
   "bin": {
     "cursor-plan-preview": "./dist/cli.js"
   },
   "files": [
     "dist",
-    "agent-config"
+    "agent-config",
+    "assets"
   ],
   "scripts": {
     "build": "npm run build:cli && npm run build:ui",
@@ -98,11 +99,11 @@
     "@types/node": "^25.5.0",
     "@types/react": "^19.0.0",
     "@types/react-dom": "^19.0.0",
-    "@vercel/node": "^5.6.16",
     "@vitejs/plugin-react": "^6.0.1",
     "eslint": "^10.0.3",
     "husky": "^9.1.7",
     "lint-staged": "^16.4.0",
+    "marked": "^15.0.12",
     "prettier": "^3.5.3",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",

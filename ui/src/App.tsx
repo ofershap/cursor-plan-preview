@@ -1,7 +1,10 @@
 import { useState, useEffect, useRef, useCallback } from "react";
+import { marked } from "marked";
 import type { ParsedPlan, Annotation, AnnotationType } from "./types";
 import { encodeShareUrl, decodeShareUrl } from "./utils/sharing";
 import "./app.css";
+
+marked.setOptions({ breaks: true, gfm: true });
 
 const ANNOTATION_COLORS: Record<AnnotationType, string> = {
   DELETION: "#ef4444",
@@ -75,10 +78,11 @@ function AnnotationModal({
   const needsText =
     type === "REPLACEMENT" || type === "COMMENT" || type === "INSERTION";
 
-  if (!needsText) {
-    onSave("");
-    return null;
-  }
+  useEffect(() => {
+    if (!needsText) onSave("");
+  }, [needsText, onSave]);
+
+  if (!needsText) return null;
 
   const placeholder =
     type === "REPLACEMENT"
@@ -238,16 +242,21 @@ function PlanViewer({
     }
   };
 
-  const handleModalSave = (text: string) => {
-    if (!modal) return;
-    onAnnotationCreate({
-      type: modal.type,
-      originalText: modal.originalText,
-      text,
-    });
-    setModal(null);
-    window.getSelection()?.removeAllRanges();
-  };
+  const handleModalSave = useCallback(
+    (text: string) => {
+      setModal((current) => {
+        if (!current) return null;
+        onAnnotationCreate({
+          type: current.type,
+          originalText: current.originalText,
+          text,
+        });
+        window.getSelection()?.removeAllRanges();
+        return null;
+      });
+    },
+    [onAnnotationCreate],
+  );
 
   const renderedBody = renderMarkdown(plan.body, annotations);
 
@@ -305,73 +314,33 @@ function PlanViewer({
 }
 
 function renderMarkdown(markdown: string, annotations: Annotation[]): string {
-  const deletedTexts = new Set(
-    annotations.filter((a) => a.type === "DELETION").map((a) => a.originalText),
-  );
-  const commentedTexts = new Map(
-    annotations
-      .filter((a) => a.type === "COMMENT")
-      .map((a) => [a.originalText, a.text ?? ""]),
-  );
-  const replacedTexts = new Map(
-    annotations
-      .filter((a) => a.type === "REPLACEMENT")
-      .map((a) => [a.originalText, a.text ?? ""]),
-  );
+  let html = marked.parse(markdown) as string;
 
-  let html = markdown
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;");
+  for (const ann of annotations) {
+    if (!ann.originalText) continue;
+    const escaped = ann.originalText.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    const re = new RegExp(escaped);
 
-  html = html
-    .replace(/^#{6}\s+(.+)$/gm, "<h6>$1</h6>")
-    .replace(/^#{5}\s+(.+)$/gm, "<h5>$1</h5>")
-    .replace(/^#{4}\s+(.+)$/gm, "<h4>$1</h4>")
-    .replace(/^#{3}\s+(.+)$/gm, "<h3>$1</h3>")
-    .replace(/^#{2}\s+(.+)$/gm, "<h2>$1</h2>")
-    .replace(/^#{1}\s+(.+)$/gm, "<h1>$1</h1>")
-    .replace(/^```[\w]*\n([\s\S]*?)^```/gm, "<pre><code>$1</code></pre>")
-    .replace(/`([^`]+)`/g, "<code>$1</code>")
-    .replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>")
-    .replace(/\*([^*]+)\*/g, "<em>$1</em>")
-    .replace(/^- \[x\] (.+)$/gm, '<li class="task done">✓ $1</li>')
-    .replace(/^- \[ \] (.+)$/gm, '<li class="task">○ $1</li>')
-    .replace(/^[-*]\s+(.+)$/gm, "<li>$1</li>")
-    .replace(/^\d+\.\s+(.+)$/gm, "<li>$1</li>")
-    .replace(/^&gt;\s+(.+)$/gm, "<blockquote>$1</blockquote>")
-    .replace(/^---$/gm, "<hr />")
-    .replace(
-      /\[([^\]]+)\]\(([^)]+)\)/g,
-      '<a href="$2" target="_blank" rel="noopener">$1</a>',
-    )
-    .replace(/\n\n/g, "</p><p>")
-    .replace(/(<li>[\s\S]*?<\/li>)/g, "<ul>$1</ul>");
-
-  html = `<p>${html}</p>`;
-
-  for (const text of deletedTexts) {
-    const escaped = text.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-    html = html.replace(
-      new RegExp(escaped, "g"),
-      `<mark class="ann-delete">${text}</mark>`,
-    );
-  }
-
-  for (const [text, comment] of commentedTexts) {
-    const escaped = text.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-    html = html.replace(
-      new RegExp(escaped, "g"),
-      `<mark class="ann-comment" title="${comment}">${text}</mark>`,
-    );
-  }
-
-  for (const [text, replacement] of replacedTexts) {
-    const escaped = text.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-    html = html.replace(
-      new RegExp(escaped, "g"),
-      `<mark class="ann-replace">${text} → ${replacement}</mark>`,
-    );
+    switch (ann.type) {
+      case "DELETION":
+        html = html.replace(
+          re,
+          `<mark class="ann-delete">${ann.originalText}</mark>`,
+        );
+        break;
+      case "COMMENT":
+        html = html.replace(
+          re,
+          `<mark class="ann-comment" title="${(ann.text ?? "").replace(/"/g, "&quot;")}">${ann.originalText}</mark>`,
+        );
+        break;
+      case "REPLACEMENT":
+        html = html.replace(
+          re,
+          `<mark class="ann-replace">${ann.originalText} \u2192 ${ann.text ?? ""}</mark>`,
+        );
+        break;
+    }
   }
 
   return html;

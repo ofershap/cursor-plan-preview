@@ -1,26 +1,48 @@
 import { createServer, type IncomingMessage, type ServerResponse } from "http";
-import { readFileSync, existsSync, writeFileSync } from "fs";
-import { join, dirname } from "path";
+import { readFileSync, existsSync, writeFileSync, statSync } from "fs";
+import { join, dirname, extname } from "path";
 import { fileURLToPath } from "url";
 import { parsePlanFile } from "./parser.js";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
-function getUiPath(): string {
+const MIME_TYPES: Record<string, string> = {
+  ".html": "text/html",
+  ".js": "application/javascript",
+  ".css": "text/css",
+  ".json": "application/json",
+  ".svg": "image/svg+xml",
+  ".png": "image/png",
+  ".ico": "image/x-icon",
+  ".woff": "font/woff",
+  ".woff2": "font/woff2",
+};
+
+function getUiDir(): string {
   const candidates = [
-    join(__dirname, "ui", "index.html"),
-    join(__dirname, "..", "dist", "ui", "index.html"),
+    join(__dirname, "ui"),
+    join(__dirname, "..", "dist", "ui"),
   ];
   for (const p of candidates) {
-    if (existsSync(p)) return p;
+    if (existsSync(join(p, "index.html"))) return p;
   }
-  return join(__dirname, "ui", "index.html");
+  return join(__dirname, "ui");
 }
 
 function setCors(res: ServerResponse): void {
   res.setHeader("Access-Control-Allow-Origin", "*");
   res.setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
   res.setHeader("Access-Control-Allow-Headers", "Content-Type");
+}
+
+function serveStaticFile(res: ServerResponse, filePath: string): boolean {
+  if (!existsSync(filePath) || !statSync(filePath).isFile()) return false;
+  const ext = extname(filePath);
+  const contentType = MIME_TYPES[ext] ?? "application/octet-stream";
+  const content = readFileSync(filePath);
+  res.writeHead(200, { "Content-Type": contentType });
+  res.end(content);
+  return true;
 }
 
 export interface ServerOptions {
@@ -33,6 +55,7 @@ export function startServer(
 ): Promise<{ port: number; url: string }> {
   return new Promise((resolve, reject) => {
     const plan = parsePlanFile(options.planFile);
+    const uiDir = getUiDir();
 
     const server = createServer((req: IncomingMessage, res: ServerResponse) => {
       const url = new URL(req.url ?? "/", "http://localhost");
@@ -81,15 +104,17 @@ export function startServer(
         return;
       }
 
-      const uiPath = getUiPath();
-      if (existsSync(uiPath)) {
-        const html = readFileSync(uiPath, "utf-8");
-        res.writeHead(200, { "Content-Type": "text/html" });
-        res.end(html);
-      } else {
-        res.writeHead(404);
-        res.end("UI not built. Run: npm run build:ui");
-      }
+      const requestedFile = join(
+        uiDir,
+        url.pathname === "/" ? "index.html" : url.pathname,
+      );
+      if (serveStaticFile(res, requestedFile)) return;
+
+      const indexPath = join(uiDir, "index.html");
+      if (serveStaticFile(res, indexPath)) return;
+
+      res.writeHead(404);
+      res.end("UI not built. Run: npm run build:ui");
     });
 
     const desiredPort = options.port ?? 19450;

@@ -4,7 +4,8 @@ import { join } from "path";
 import { fileURLToPath } from "url";
 import { dirname } from "path";
 import { startServer } from "./server.js";
-import { exec } from "child_process";
+import { openBrowser } from "./utils.js";
+import { isPlanFile } from "./parser.js";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
@@ -50,6 +51,40 @@ program
   });
 
 program
+  .command("hook")
+  .description("Hook handler for Cursor afterFileEdit (internal)")
+  .action(async () => {
+    let raw = "";
+    process.stdin.setEncoding("utf-8");
+
+    for await (const chunk of process.stdin) {
+      raw += chunk;
+    }
+
+    let input: { file_path?: string };
+    try {
+      input = JSON.parse(raw) as { file_path?: string };
+    } catch {
+      process.stdout.write("{}\n");
+      process.exit(0);
+    }
+
+    if (!input.file_path || !isPlanFile(input.file_path)) {
+      process.stdout.write("{}\n");
+      process.exit(0);
+    }
+
+    process.stdout.write("{}\n");
+
+    try {
+      const { url } = await startServer({ planFile: input.file_path });
+      openBrowser(`${url}?file=${encodeURIComponent(input.file_path)}`);
+    } catch {
+      process.exit(0);
+    }
+  });
+
+program
   .command("list")
   .description("List recent plans from ~/.cursor/plans/")
   .action(async () => {
@@ -81,16 +116,5 @@ program
       `\nRun: cursor-plan-preview serve ~/.cursor/plans/<filename>\n`,
     );
   });
-
-function openBrowser(url: string): void {
-  const platform = process.platform;
-  let cmd: string;
-
-  if (platform === "darwin") cmd = `open "${url}"`;
-  else if (platform === "win32") cmd = `start "" "${url}"`;
-  else cmd = `xdg-open "${url}"`;
-
-  exec(cmd);
-}
 
 program.parse();

@@ -1,32 +1,54 @@
-# cursor-plan-preview
+<p align="center">
+  <img src="assets/logo.svg" alt="cursor-plan-preview" width="120" height="120" />
+</p>
 
-[![npm version](https://img.shields.io/npm/v/cursor-plan-preview.svg)](https://www.npmjs.com/package/cursor-plan-preview)
-[![npm downloads](https://img.shields.io/npm/dm/cursor-plan-preview.svg)](https://www.npmjs.com/package/cursor-plan-preview)
-[![CI](https://github.com/ofershap/cursor-plan-preview/actions/workflows/ci.yml/badge.svg)](https://github.com/ofershap/cursor-plan-preview/actions/workflows/ci.yml)
-[![TypeScript](https://img.shields.io/badge/TypeScript-strict-blue.svg)](https://www.typescriptlang.org/)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+<h1 align="center">cursor-plan-preview</h1>
 
-Your agent just wrote a plan. Your team has no idea what it's about to build.
+<p align="center">
+  <strong>Your agent writes a plan. Your team has no idea what it's about to build.</strong>
+</p>
 
-```bash
-npx cursor-plan-preview --setup
-```
+<p align="center">
+  Hooks into Cursor's plan mode, opens every plan in a browser UI,<br>
+  lets your team annotate inline, shares via a single URL. No server needed.
+</p>
 
-> **CPR — Cursor Plan Preview.** Hooks into Cursor's plan mode, opens every plan in a visual browser UI the moment it's saved, lets your team annotate inline, and shares via a single URL. No server required for most plans.
+<p align="center">
+  <a href="#quick-start"><img src="https://img.shields.io/badge/Try_It_Now-22c55e?style=for-the-badge&logoColor=white" alt="Try It Now" /></a>
+  &nbsp;
+  <a href="#quick-start"><img src="https://img.shields.io/badge/Install-3b82f6?style=for-the-badge&logoColor=white" alt="Install" /></a>
+  &nbsp;
+  <a href="#how-it-works"><img src="https://img.shields.io/badge/How_It_Works-8b5cf6?style=for-the-badge&logoColor=white" alt="How It Works" /></a>
+</p>
 
-![Demo](assets/demo.gif)
+<p align="center">
+  <a href="https://github.com/ofershap/cursor-plan-preview/stargazers"><img src="https://img.shields.io/github/stars/ofershap/cursor-plan-preview?style=social" alt="GitHub stars" /></a>
+  &nbsp;
+  <a href="https://www.npmjs.com/package/cursor-plan-preview"><img src="https://img.shields.io/npm/v/cursor-plan-preview.svg" alt="npm version" /></a>
+  <a href="https://www.npmjs.com/package/cursor-plan-preview"><img src="https://img.shields.io/npm/dm/cursor-plan-preview.svg" alt="npm downloads" /></a>
+  <a href="https://github.com/ofershap/cursor-plan-preview/actions/workflows/ci.yml"><img src="https://github.com/ofershap/cursor-plan-preview/actions/workflows/ci.yml/badge.svg" alt="CI" /></a>
+  <a href="https://www.typescriptlang.org/"><img src="https://img.shields.io/badge/TypeScript-strict-blue" alt="TypeScript" /></a>
+  <a href="https://opensource.org/licenses/MIT"><img src="https://img.shields.io/badge/License-MIT-yellow.svg" alt="License: MIT" /></a>
+  <a href="https://makeapullrequest.com"><img src="https://img.shields.io/badge/PRs-welcome-brightgreen.svg" alt="PRs Welcome" /></a>
+</p>
 
 ---
 
-## The Problem
+## Your Agent Plans in the Dark
 
-Cursor's plan mode is great for you. It's invisible to your team.
+Cursor's plan mode generates a detailed implementation plan - files to change, architecture decisions, task breakdown. You approve it, the agent starts building. Your teammates find out when the PR lands. Or when something breaks.
 
-The agent generates a detailed implementation plan — files to change, architecture decisions, task breakdown. You approve it and it starts building. Your teammates find out when the PR lands, or when something breaks.
+There's no review step. No "hey, before you build this, can you check if this makes sense?" moment.
 
 CPR puts the plan in front of your team before a single line of code is written.
 
----
+- The agent saves a plan, CPR opens it in a browser UI automatically
+- You highlight text, annotate inline (delete, replace, comment, insert)
+- Click "Share Plan" and paste the URL to your team
+- They add their own annotations and share back
+- You export the feedback, the agent reads it on the next prompt
+
+No accounts. No backend for most plans. The URL contains everything.
 
 ## Quick Start
 
@@ -34,127 +56,114 @@ CPR puts the plan in front of your team before a single line of code is written.
 npx cursor-plan-preview --setup
 ```
 
-Restart Cursor. The next time the agent saves a plan, it opens automatically in your browser.
+Restart Cursor. Next time the agent saves a plan, it opens in your browser.
 
----
+To preview a specific plan:
+
+```bash
+npx cursor-plan-preview serve ~/.cursor/plans/my-plan_abc123.plan.md
+```
 
 ## How It Works
 
 ```
-Agent generates plan → saved to ~/.cursor/plans/
-        ↓
-CPR afterFileEdit hook fires
-        ↓
-Plan opens in browser preview UI
-        ↓
-You annotate + click Share Plan → URL copied
-        ↓
-Teammate opens URL → adds annotations → shares back
-        ↓
-You click Export Feedback → -feedback.md written
-        ↓
-Agent reads feedback on next prompt → incorporates before building
+Agent generates plan  ->  saved to ~/.cursor/plans/
+                              |
+                    CPR hook fires on save
+                              |
+                    Plan opens in browser UI
+                              |
+              You annotate + click Share Plan  ->  URL copied
+                              |
+              Teammate opens URL  ->  adds annotations
+                              |
+              You click Export Feedback  ->  -feedback.md written
+                              |
+              Agent reads feedback  ->  adjusts plan before building
 ```
 
----
+## What You Can Annotate
 
-## Annotation Types
+Select any text in the plan to pick an annotation type:
 
-Select any text in the plan to annotate it:
+|                             |                                      |
+| --------------------------- | ------------------------------------ |
+| **Delete** (scissors)       | Mark text for removal                |
+| **Replace** (arrows)        | Suggest replacement text             |
+| **Comment** (speech bubble) | Add a note to specific text          |
+| **Insert** (plus)           | Add new text at a point              |
+| **Global Note**             | Add a note not tied to specific text |
 
-| Type        | Icon | What it does                         |
-| ----------- | ---- | ------------------------------------ |
-| Delete      | ✂    | Mark text for removal                |
-| Replace     | ↔    | Suggest replacement text             |
-| Comment     | 💬   | Add a note to specific text          |
-| Insert      | +    | Add new text at a point              |
-| Global Note | —    | Add a note not tied to specific text |
-
-Annotations appear highlighted in the plan with color-coded borders. The sidebar ("Vital Signs") lists all annotations with a count badge.
-
----
+Annotations show as color-coded highlights in the plan body. The sidebar lists all annotations with a count badge.
 
 ## Sharing
 
-**Small plans** (< 8KB compressed): the entire plan + annotations are encoded in the URL hash using deflate compression. Zero server, zero data leaves the browser. Teammate opens the URL, everything decodes client-side.
+Plans under ~8KB compressed get encoded entirely in the URL hash. Nothing leaves the browser. Your teammate opens the link and everything decodes client-side.
 
-**Large plans**: stored temporarily via the CPR paste service with AES-256-GCM encryption. Auto-deleted after 7 days. The decryption key lives only in the URL — the server stores only ciphertext it cannot read.
+For larger plans, use `cursor-plan-preview serve` and share your screen, or copy the plan body into a Slack thread.
 
----
-
-## Manual Usage
-
-```bash
-# Open any plan file directly
-cursor-plan-preview serve ~/.cursor/plans/my-plan_abc123.plan.md
-
-# List recent plans
-cursor-plan-preview list
-
-# Re-run setup
-cursor-plan-preview --setup
-```
-
----
-
-## Feedback Loop
+## The Feedback Loop
 
 After teammates annotate and share back:
 
-1. Open the annotated URL in your browser
+1. Open the annotated URL
 2. Click **Export Feedback**
-3. A `*-feedback.md` file is written to `~/.cursor/plans/`
+3. A `*-feedback.md` file appears in `~/.cursor/plans/`
 4. The installed Cursor rule tells the agent to check for feedback before building
-5. The agent summarizes the team's annotations and asks if you want to incorporate them
-
----
+5. Agent summarizes annotations and asks if you want to incorporate them
 
 ## What Gets Installed
 
-`npx cursor-plan-preview --setup` adds three things:
+`npx cursor-plan-preview --setup` adds two things:
 
 | File                               | What it does                                                 |
 | ---------------------------------- | ------------------------------------------------------------ |
 | `~/.cursor/hooks.json`             | Adds `afterFileEdit` hook entry (merges with existing hooks) |
-| `~/.cursor/rules/plan-preview.mdc` | Tells the agent to check for feedback files before building  |
+| `~/.cursor/rules/plan-preview.mdc` | Tells the agent to check for feedback before building        |
 
-Existing hooks (like Superset or other tools) are preserved — the setup merges, never overwrites.
+Existing hooks (Superset, other tools) are preserved. The setup merges, never overwrites.
 
----
+## Manual Commands
+
+```bash
+cursor-plan-preview serve <file>    # open any .plan.md in the preview UI
+cursor-plan-preview list            # show recent plans from ~/.cursor/plans/
+cursor-plan-preview --setup         # re-run setup
+```
 
 ## Architecture
 
 ```
 cursor-plan-preview/
 ├── src/
-│   ├── cli.ts          CLI entry (serve, list, --setup)
-│   ├── hook.ts         afterFileEdit hook handler
-│   ├── server.ts       Local HTTP server (plan API + feedback export)
-│   └── parser.ts       Plan file parser (YAML frontmatter + markdown)
+│   ├── cli.ts          CLI entry + hook handler
+│   ├── server.ts       Local HTTP server (plan API + static files + feedback export)
+│   ├── parser.ts       Plan file parser (YAML frontmatter + markdown)
+│   └── utils.ts        Shared utilities
 ├── ui/
-│   ├── src/
-│   │   ├── App.tsx     Main review app
-│   │   ├── app.css     CPR medical theme
-│   │   └── utils/
-│   │       └── sharing.ts  Deflate + base64 URL encoding
-│   └── index.html
-├── agent-config/
-│   ├── setup.mjs       --setup handler
-│   └── cursor/
-│       └── rules/plan-preview.mdc
-└── api/
-    └── paste.ts        Vercel serverless paste API
+│   └── src/
+│       ├── App.tsx     Review UI (React 19 + marked)
+│       └── utils/
+│           └── sharing.ts  Deflate + base64 URL encoding
+└── agent-config/
+    ├── setup.mjs       --setup handler
+    └── cursor/rules/   Cursor rule for feedback loop
 ```
 
-**Stack:** TypeScript (strict) · React 19 · Vite · Node HTTP · Vitest
+## Tech Stack
 
----
+|              |                                                                                                                                     |
+| ------------ | ----------------------------------------------------------------------------------------------------------------------------------- |
+| **Language** | ![TypeScript](https://img.shields.io/badge/TypeScript-strict-3178C6?logo=typescript&logoColor=white)                                |
+| **UI**       | ![React](https://img.shields.io/badge/React_19-61DAFB?logo=react&logoColor=black)                                                   |
+| **Markdown** | ![marked](https://img.shields.io/badge/marked-GFM-yellow)                                                                           |
+| **Bundler**  | ![tsup](https://img.shields.io/badge/tsup-ESM-yellow) + ![Vite](https://img.shields.io/badge/Vite-646CFF?logo=vite&logoColor=white) |
+| **Testing**  | ![Vitest](https://img.shields.io/badge/Vitest-6E9F18?logo=vitest&logoColor=white)                                                   |
+| **CI**       | ![GitHub Actions](https://img.shields.io/badge/GitHub_Actions-2088FF?logo=githubactions&logoColor=white)                            |
 
 ## Contributing
 
-Bug reports, feature requests, and PRs welcome. See [CONTRIBUTING.md](CONTRIBUTING.md) for setup and guidelines.
-
----
+Contributions welcome. See [CONTRIBUTING.md](CONTRIBUTING.md) for setup and guidelines.
 
 ## Author
 
@@ -165,6 +174,8 @@ Bug reports, feature requests, and PRs welcome. See [CONTRIBUTING.md](CONTRIBUTI
 
 ---
 
+If this helped you, [star the repo](https://github.com/ofershap/cursor-plan-preview), [open an issue](https://github.com/ofershap/cursor-plan-preview/issues) if something breaks.
+
 ## License
 
-[MIT](LICENSE) © [Ofer Shapira](https://github.com/ofershap)
+[MIT](LICENSE) &copy; [Ofer Shapira](https://github.com/ofershap)
