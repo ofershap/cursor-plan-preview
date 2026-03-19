@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useCallback } from "react";
+import { useState, useEffect, useRef, useCallback, useMemo } from "react";
 import { marked } from "marked";
 import type { ParsedPlan, Annotation, AnnotationType } from "./types";
 import { encodeShareUrl, decodeShareUrl } from "./utils/sharing";
@@ -97,6 +97,52 @@ function CommentPopup({
             Comment
           </button>
         </div>
+      </div>
+    </>
+  );
+}
+
+function FinishReviewModal({
+  url,
+  onClose,
+}: {
+  url: string;
+  onClose: () => void;
+}) {
+  const [copied, setCopied] = useState(true);
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  return (
+    <>
+      <div className="finish-review-backdrop" onClick={onClose} />
+      <div className="finish-review-modal">
+        <div className="finish-review-check">✓</div>
+        <h2 className="finish-review-title">Review complete</h2>
+        <p className="finish-review-desc">
+          Your notes are saved in the link below. Send it back to the developer
+          so they can incorporate your feedback.
+        </p>
+        <div className="finish-review-url">
+          <input
+            ref={inputRef}
+            readOnly
+            value={url}
+            onClick={() => inputRef.current?.select()}
+          />
+          <button
+            className="finish-review-copy"
+            onClick={() => {
+              navigator.clipboard.writeText(url);
+              setCopied(true);
+              setTimeout(() => setCopied(false), 2000);
+            }}
+          >
+            {copied ? "Copied!" : "Copy Link"}
+          </button>
+        </div>
+        <button className="finish-review-done" onClick={onClose}>
+          Done
+        </button>
       </div>
     </>
   );
@@ -713,6 +759,9 @@ export default function App() {
   const [loading, setLoading] = useState(true);
   const [sharedMode, setSharedMode] = useState(false);
   const [exportedPath, setExportedPath] = useState<string | null>(null);
+  const [finishReviewUrl, setFinishReviewUrl] = useState<string | null>(null);
+  const hasSharedRef = useRef(false);
+  const initialAnnotationCount = useRef(0);
 
   useEffect(() => {
     const hash = window.location.hash.slice(1);
@@ -726,6 +775,7 @@ export default function App() {
             filePath: "",
           });
           setAnnotations(result.annotations);
+          initialAnnotationCount.current = result.annotations.length;
           setSharedMode(true);
           setLoading(false);
           history.replaceState(
@@ -741,6 +791,21 @@ export default function App() {
       fetchPlan();
     }
   }, []);
+
+  const hasNewNotes = useMemo(
+    () => annotations.length > initialAnnotationCount.current,
+    [annotations],
+  );
+
+  useEffect(() => {
+    function onBeforeUnload(e: BeforeUnloadEvent) {
+      if (hasNewNotes && !hasSharedRef.current) {
+        e.preventDefault();
+      }
+    }
+    window.addEventListener("beforeunload", onBeforeUnload);
+    return () => window.removeEventListener("beforeunload", onBeforeUnload);
+  }, [hasNewNotes]);
 
   function fetchPlan() {
     const isGhPages = window.location.hostname.includes("github.io");
@@ -794,9 +859,15 @@ export default function App() {
   const handleShare = async () => {
     if (!plan) return;
     const url = await encodeShareUrl(plan, annotations);
-    await navigator.clipboard.writeText(url);
-    window.open(url, "_blank");
-    showToast("Link copied to clipboard — share it with your team");
+    hasSharedRef.current = true;
+    if (sharedMode) {
+      await navigator.clipboard.writeText(url);
+      setFinishReviewUrl(url);
+    } else {
+      await navigator.clipboard.writeText(url);
+      window.open(url, "_blank");
+      showToast("Link copied to clipboard — share it with your team");
+    }
   };
 
   const handleExportFeedback = async () => {
@@ -848,7 +919,7 @@ export default function App() {
           )}
           <ThemeToggle theme={theme} toggleTheme={toggleTheme} />
           <button className="btn-primary" onClick={handleShare}>
-            {sharedMode ? "Share with Your Notes" : "Share Plan"}
+            {sharedMode ? "Finish Review" : "Share Plan"}
           </button>
         </div>
       </header>
@@ -864,8 +935,15 @@ export default function App() {
       {sharedMode && (
         <div className="reviewer-banner">
           You're reviewing <strong>{plan.name}</strong>. Add your notes below,
-          then click <strong>Share with Your Notes</strong> to send it back.
+          then click <strong>Finish Review</strong> to send it back.
         </div>
+      )}
+
+      {finishReviewUrl && (
+        <FinishReviewModal
+          url={finishReviewUrl}
+          onClose={() => setFinishReviewUrl(null)}
+        />
       )}
 
       {toast && <div className="toast">{toast}</div>}
