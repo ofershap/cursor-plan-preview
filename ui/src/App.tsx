@@ -395,22 +395,71 @@ function ProductMockup() {
 }
 
 function LandingPage() {
+  const [theme, setTheme] = useState<"dark" | "light">(() => {
+    if (typeof window !== "undefined") {
+      const stored = localStorage.getItem("cpr-theme");
+      if (stored === "light" || stored === "dark") return stored;
+    }
+    return "dark";
+  });
+
+  useEffect(() => {
+    document.documentElement.setAttribute("data-theme", theme);
+    localStorage.setItem("cpr-theme", theme);
+  }, [theme]);
+
+  const toggleTheme = () => setTheme((t) => (t === "dark" ? "light" : "dark"));
+
   return (
     <div className="landing">
-      <div className="landing-hero">
-        <div className="landing-logo">
-          <span className="logo-icon">✚</span>
-          <span className="logo-text">CPR</span>
+      <nav className="landing-nav">
+        <div className="landing-nav-inner">
+          <a href="/" className="nav-left">
+            <span className="logo-icon">✚</span>
+            <span className="logo-text">CPR</span>
+          </a>
+          <div className="nav-right">
+            <a
+              href="https://github.com/ofershap/cursor-plan-preview"
+              className="nav-link"
+              target="_blank"
+              rel="noopener"
+            >
+              GitHub
+            </a>
+            <span className="nav-separator">|</span>
+            <a
+              href="https://www.npmjs.com/package/cursor-plan-preview"
+              className="nav-link"
+              target="_blank"
+              rel="noopener"
+            >
+              npm
+            </a>
+            <button
+              className="theme-toggle"
+              onClick={toggleTheme}
+              title={`Switch to ${theme === "dark" ? "light" : "dark"} mode`}
+            >
+              {theme === "dark" ? "☀" : "🌙"}
+            </button>
+          </div>
         </div>
+      </nav>
+
+      <div className="landing-hero">
         <h1 className="landing-headline">
-          Review agent plans
+          Your agent writes a plan.
           <br />
-          <span className="headline-dim">Not in the terminal</span>
+          <span className="headline-dim">
+            Your team has no idea what it's about to build.
+          </span>
         </h1>
         <p className="landing-sub">
-          Coding agents moved the bottleneck from writing code to planning it. A
-          bad plan burns tokens, wastes hours, and ships the wrong thing. CPR
-          lets your team annotate and review before the agent builds.
+          The bottleneck in agentic development isn't writing code anymore. It's
+          getting the plan right. A bad plan burns tokens, wastes hours, and
+          ships the wrong thing. CPR puts the plan in front of your team before
+          a single line of code is written.
         </p>
         <div className="landing-ctas">
           <div className="landing-install">
@@ -443,10 +492,10 @@ function LandingPage() {
         <div className="ps-card">
           <h3 className="ps-label">The Problem</h3>
           <p>
-            AI agents generate plans in the terminal or a markdown file. You
-            approve or reject, but giving precise feedback means typing
-            everything out. No way to mark specific sections. No collaboration.
-            No team visibility.
+            Cursor's plan mode generates a detailed implementation plan. You
+            approve it, the agent starts building. Your teammates find out when
+            the PR lands. There's no review step. No "can you check if this
+            makes sense?" moment. No way to mark specific sections.
           </p>
         </div>
         <div className="ps-card">
@@ -454,7 +503,8 @@ function LandingPage() {
           <p>
             Select the exact parts of the plan you want to change. Mark for
             deletion, add a comment, or suggest a replacement. Share with your
-            team via a single URL. Feedback flows back to your agent.
+            team via a single URL. Feedback flows back to your agent
+            automatically.
           </p>
         </div>
       </div>
