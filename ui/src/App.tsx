@@ -346,6 +346,54 @@ function renderMarkdown(markdown: string, annotations: Annotation[]): string {
   return html;
 }
 
+function ProductMockup() {
+  return (
+    <div className="mockup">
+      <div className="mockup-chrome">
+        <div className="mockup-dots">
+          <span className="dot dot-red" />
+          <span className="dot dot-yellow" />
+          <span className="dot dot-green" />
+        </div>
+        <span className="mockup-title">CPR</span>
+      </div>
+      <div className="mockup-body">
+        <div className="mockup-content">
+          <div className="mockup-heading">Refactor auth middleware</div>
+          <div className="mockup-line" />
+          <div className="mockup-line mockup-line-short" />
+          <div className="mockup-line mockup-line-highlight-delete">
+            Remove legacy session checks
+          </div>
+          <div className="mockup-line" />
+          <div className="mockup-line mockup-line-highlight-comment">
+            Add rate limiting per user
+          </div>
+          <div className="mockup-line mockup-line-short" />
+          <div className="mockup-line" />
+        </div>
+        <div className="mockup-sidebar">
+          <div className="mockup-sidebar-title">
+            Annotations <span className="mockup-badge">2</span>
+          </div>
+          <div className="mockup-ann mockup-ann-delete">
+            <span className="mockup-ann-label">Delete</span>
+            <span className="mockup-ann-text">
+              &ldquo;Remove legacy session checks&rdquo;
+            </span>
+          </div>
+          <div className="mockup-ann mockup-ann-comment">
+            <span className="mockup-ann-label">Comment</span>
+            <span className="mockup-ann-text">
+              &ldquo;Should we use a token bucket here?&rdquo;
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function LandingPage() {
   return (
     <div className="landing">
@@ -354,73 +402,165 @@ function LandingPage() {
           <span className="logo-icon">✚</span>
           <span className="logo-text">CPR</span>
         </div>
-        <h1 className="landing-title">Cursor Plan Preview</h1>
-        <p className="landing-tagline">
-          Your agent writes a plan. Your team should see it before it builds.
+        <h1 className="landing-headline">
+          Review agent plans.
+          <br />
+          <span className="headline-dim">Not in the terminal.</span>
+        </h1>
+        <p className="landing-sub">
+          Coding agents moved the bottleneck from writing code to planning it. A
+          bad plan burns tokens, wastes hours, and ships the wrong thing. CPR
+          lets your team annotate and review before the agent builds.
         </p>
-        <div className="landing-install">
-          <code>npx cursor-plan-preview --setup</code>
+        <div className="landing-ctas">
+          <div className="landing-install">
+            <code>npx cursor-plan-preview --setup</code>
+          </div>
+          <div className="landing-cta-row">
+            <a
+              href="https://github.com/ofershap/cursor-plan-preview"
+              className="landing-cta-primary"
+              target="_blank"
+              rel="noopener"
+            >
+              View on GitHub
+            </a>
+            <a
+              href="https://www.npmjs.com/package/cursor-plan-preview"
+              className="landing-cta-secondary"
+              target="_blank"
+              rel="noopener"
+            >
+              npm package
+            </a>
+          </div>
         </div>
-        <a
-          href="https://github.com/ofershap/cursor-plan-preview"
-          className="landing-cta"
-          target="_blank"
-          rel="noopener"
-        >
-          View on GitHub
-        </a>
       </div>
 
-      <div className="landing-steps">
-        <div className="step">
-          <div className="step-num">1</div>
-          <div className="step-content">
-            <h3>Agent saves a plan</h3>
-            <p>
-              Cursor's plan mode generates a .plan.md file. CPR hooks into the
-              save and opens it in your browser.
-            </p>
-          </div>
+      <ProductMockup />
+
+      <div className="landing-problem-solution">
+        <div className="ps-card">
+          <h3 className="ps-label">The Problem</h3>
+          <p>
+            AI agents generate plans in the terminal or a markdown file. You
+            approve or reject, but giving precise feedback means typing
+            everything out. No way to mark specific sections. No collaboration.
+            No team visibility.
+          </p>
         </div>
-        <div className="step">
-          <div className="step-num">2</div>
-          <div className="step-content">
-            <h3>You annotate and share</h3>
-            <p>
-              Highlight text, add comments, suggest replacements. Click Share to
-              get a URL with everything encoded in it.
-            </p>
-          </div>
-        </div>
-        <div className="step">
-          <div className="step-num">3</div>
-          <div className="step-content">
-            <h3>Team reviews, agent adapts</h3>
-            <p>
-              Your teammate opens the link, adds feedback, shares back. Export
-              the annotations and the agent reads them before building.
-            </p>
-          </div>
+        <div className="ps-card">
+          <h3 className="ps-label ps-label-green">The Solution</h3>
+          <p>
+            Select the exact parts of the plan you want to change. Mark for
+            deletion, add a comment, or suggest a replacement. Share with your
+            team via a single URL. Feedback flows back to your agent.
+          </p>
         </div>
       </div>
 
       <div className="landing-features">
-        <div className="feature">
-          <span className="feature-icon">🔒</span>
-          <span>
-            No server. Plan data lives only in the URL hash, never sent
-            anywhere.
-          </span>
+        <div className="feature-card">
+          <div className="feature-card-icon">
+            <svg
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+              <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+            </svg>
+          </div>
+          <h4>Runs locally.</h4>
+          <p>
+            No cloud. No network requests. Plans never leave your machine. CPR
+            runs a local server that opens your browser.
+          </p>
         </div>
-        <div className="feature">
-          <span className="feature-icon">⚡</span>
-          <span>One command install. Works with existing Cursor hooks.</span>
+        <div className="feature-card">
+          <div className="feature-card-icon">
+            <svg
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" />
+              <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" />
+            </svg>
+          </div>
+          <h4>Share privately.</h4>
+          <p>
+            Plans and annotations compress into the URL itself. Share a link. No
+            accounts, no database, no third parties.
+          </p>
         </div>
-        <div className="feature">
-          <span className="feature-icon">🔗</span>
-          <span>
-            Share via any channel. Slack, email, DM. No accounts needed.
-          </span>
+        <div className="feature-card">
+          <div className="feature-card-icon">
+            <svg
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <polyline points="4 17 10 11 4 5" />
+              <line x1="12" y1="19" x2="20" y2="19" />
+            </svg>
+          </div>
+          <h4>One command.</h4>
+          <p>
+            Run <code>npx cursor-plan-preview --setup</code> and you're done.
+            Hooks into Cursor's afterFileEdit. Zero config.
+          </p>
+        </div>
+      </div>
+
+      <div className="landing-how">
+        <h2>How it works</h2>
+        <div className="landing-steps">
+          <div className="step">
+            <div className="step-num">1</div>
+            <div className="step-content">
+              <h4>Agent saves a plan</h4>
+              <p>
+                Cursor's plan mode writes a <code>.plan.md</code> file. CPR's
+                hook detects the save and opens it in your browser.
+              </p>
+            </div>
+          </div>
+          <div className="step">
+            <div className="step-num">2</div>
+            <div className="step-content">
+              <h4>You annotate and share</h4>
+              <p>
+                Select text, choose an action (delete, comment, replace). Click
+                Share to get a URL with everything compressed in it.
+              </p>
+            </div>
+          </div>
+          <div className="step">
+            <div className="step-num">3</div>
+            <div className="step-content">
+              <h4>Team reviews, agent adapts</h4>
+              <p>
+                Your teammate opens the link, adds their feedback. Export
+                annotations and the agent reads them before building.
+              </p>
+            </div>
+          </div>
         </div>
       </div>
 
