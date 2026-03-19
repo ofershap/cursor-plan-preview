@@ -708,8 +708,7 @@ export default function App() {
   const { theme, toggleTheme } = useTheme();
   const [plan, setPlan] = useState<ParsedPlan | null>(null);
   const [annotations, setAnnotations] = useState<Annotation[]>([]);
-  const [shareUrl, setShareUrl] = useState<string | null>(null);
-  const [copied, setCopied] = useState(false);
+  const [toast, setToast] = useState<string | null>(null);
   const [highlightedText, setHighlightedText] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [sharedMode, setSharedMode] = useState(false);
@@ -787,13 +786,17 @@ export default function App() {
     }
   }, [addAnnotation]);
 
+  function showToast(msg: string) {
+    setToast(msg);
+    setTimeout(() => setToast(null), 4000);
+  }
+
   const handleShare = async () => {
     if (!plan) return;
     const url = await encodeShareUrl(plan, annotations);
-    setShareUrl(url);
     await navigator.clipboard.writeText(url);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
+    window.open(url, "_blank");
+    showToast("Link copied to clipboard — share it with your team");
   };
 
   const handleExportFeedback = async () => {
@@ -845,7 +848,7 @@ export default function App() {
           )}
           <ThemeToggle theme={theme} toggleTheme={toggleTheme} />
           <button className="btn-primary" onClick={handleShare}>
-            {copied ? "Copied!" : "Share Plan"}
+            {sharedMode ? "Share with Your Notes" : "Share Plan"}
           </button>
         </div>
       </header>
@@ -858,27 +861,14 @@ export default function App() {
         </div>
       )}
 
-      {shareUrl && (
-        <div className="share-banner">
-          <span>Share this link with your team:</span>
-          <input
-            readOnly
-            value={shareUrl}
-            onClick={(e) => (e.target as HTMLInputElement).select()}
-          />
-          <button
-            className="btn-copy"
-            onClick={() => {
-              navigator.clipboard.writeText(shareUrl);
-              setCopied(true);
-              setTimeout(() => setCopied(false), 2000);
-            }}
-          >
-            {copied ? "Copied!" : "Copy"}
-          </button>
-          <button onClick={() => setShareUrl(null)}>✕</button>
+      {sharedMode && (
+        <div className="reviewer-banner">
+          You're reviewing <strong>{plan.name}</strong>. Add your notes below,
+          then click <strong>Share with Your Notes</strong> to send it back.
         </div>
       )}
+
+      {toast && <div className="toast">{toast}</div>}
 
       <div className="layout">
         <PlanViewer

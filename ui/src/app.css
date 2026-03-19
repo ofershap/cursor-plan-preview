@@ -170,7 +170,6 @@ body {
 }
 
 /* Banners */
-.share-banner,
 .export-banner {
   display: flex;
   align-items: center;
@@ -179,17 +178,6 @@ body {
   background: var(--surface2);
   border-bottom: 1px solid var(--border);
   font-size: 13px;
-}
-
-.share-banner input {
-  flex: 1;
-  background: var(--bg);
-  border: 1px solid var(--border);
-  color: var(--text);
-  padding: 6px 10px;
-  border-radius: 4px;
-  font-size: 12px;
-  font-family: var(--font-mono);
 }
 
 .export-banner code {
@@ -201,7 +189,6 @@ body {
   color: var(--green);
 }
 
-.share-banner button,
 .export-banner button {
   background: none;
   border: none;
@@ -211,20 +198,45 @@ body {
   padding: 0 4px;
 }
 
-.btn-copy {
-  background: var(--green) !important;
-  color: white !important;
-  border: none;
-  padding: 6px 14px !important;
-  border-radius: 4px;
-  font-size: 12px !important;
-  font-weight: 600;
-  cursor: pointer;
-  white-space: nowrap;
+.reviewer-banner {
+  padding: 10px 24px;
+  background: color-mix(in srgb, var(--blue) 10%, var(--surface));
+  border-bottom: 1px solid color-mix(in srgb, var(--blue) 30%, var(--border));
+  font-size: 13px;
+  color: var(--text-secondary);
+  line-height: 1.5;
 }
 
-.btn-copy:hover {
-  opacity: 0.9;
+.reviewer-banner strong {
+  color: var(--text);
+}
+
+/* Toast */
+.toast {
+  position: fixed;
+  bottom: 28px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--surface);
+  color: var(--text);
+  border: 1px solid var(--border);
+  padding: 12px 24px;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 500;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+  z-index: 300;
+  animation: toast-in 0.3s ease-out, toast-out 0.3s ease-in 3.5s forwards;
+}
+
+@keyframes toast-in {
+  from { opacity: 0; transform: translateX(-50%) translateY(16px); }
+  to { opacity: 1; transform: translateX(-50%) translateY(0); }
+}
+
+@keyframes toast-out {
+  from { opacity: 1; transform: translateX(-50%) translateY(0); }
+  to { opacity: 0; transform: translateX(-50%) translateY(16px); }
 }
 
 /* Layout */
