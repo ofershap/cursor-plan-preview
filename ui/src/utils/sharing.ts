@@ -93,6 +93,8 @@ function deserializeAnnotation(s: SerializedAnnotation): Annotation {
   }
 }
 
+const SHARE_BASE_URL = "https://ofershap.github.io/cursor-plan-preview/";
+
 export async function encodeShareUrl(
   plan: { name: string; overview: string; body: string },
   annotations: Annotation[],
@@ -106,10 +108,7 @@ export async function encodeShareUrl(
   const json = JSON.stringify(payload);
   const compressed = await compress(json);
   const encoded = toBase64Url(compressed);
-  const url = new URL(window.location.href);
-  url.hash = encoded;
-  url.search = "";
-  return url.toString();
+  return `${SHARE_BASE_URL}#${encoded}`;
 }
 
 export async function decodeShareUrl(hash: string): Promise<{
