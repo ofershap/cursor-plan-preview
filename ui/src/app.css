@@ -755,6 +755,18 @@ mark.ann-replace {
   max-width: 680px;
 }
 
+.landing-badge {
+  display: inline-block;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--green);
+  border: 1px solid var(--green);
+  border-radius: 20px;
+  padding: 4px 14px;
+  margin-bottom: 24px;
+  letter-spacing: 0.02em;
+}
+
 .landing-headline {
   font-size: 48px;
   font-weight: 800;

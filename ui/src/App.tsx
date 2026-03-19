@@ -448,18 +448,15 @@ function LandingPage() {
       </nav>
 
       <div className="landing-hero">
+        <div className="landing-badge">For Cursor IDE</div>
         <h1 className="landing-headline">
-          Your agent writes a plan.
+          Review agent plans.
           <br />
-          <span className="headline-dim">
-            Your team has no idea what it's about to build.
-          </span>
+          <span className="headline-dim">Before they build.</span>
         </h1>
         <p className="landing-sub">
-          The bottleneck in agentic development isn't writing code anymore. It's
-          getting the plan right. A bad plan burns tokens, wastes hours, and
-          ships the wrong thing. CPR puts the plan in front of your team before
-          a single line of code is written.
+          Visual plan review for Cursor. Annotate inline, share with your team,
+          get feedback back to the agent. No backend, no accounts.
         </p>
         <div className="landing-ctas">
           <div className="landing-install">
