@@ -1,5 +1,12 @@
 import { Command } from "commander";
-import { readFileSync, existsSync, readdirSync, statSync } from "fs";
+import {
+  readFileSync,
+  existsSync,
+  readdirSync,
+  statSync,
+  writeFileSync,
+  unlinkSync,
+} from "fs";
 import { join, dirname } from "path";
 import { fileURLToPath } from "url";
 import { homedir } from "os";
@@ -12,6 +19,43 @@ const pkg = JSON.parse(
   readFileSync(join(__dirname, "..", "package.json"), "utf-8"),
 ) as { version: string };
 
+function removeHookEntry(hooksPath: string): boolean {
+  if (!existsSync(hooksPath)) return false;
+
+  let data: {
+    version?: number;
+    hooks?: Record<string, { command?: string }[]>;
+  };
+  try {
+    data = JSON.parse(readFileSync(hooksPath, "utf-8")) as typeof data;
+  } catch {
+    return false;
+  }
+
+  const entries = data.hooks?.afterFileEdit;
+  if (!entries) return false;
+
+  const filtered = entries.filter(
+    (h) =>
+      typeof h.command !== "string" ||
+      !h.command.includes("cursor-plan-preview"),
+  );
+
+  if (filtered.length === entries.length) return false;
+
+  const hooks = data.hooks;
+  if (!hooks) return false;
+
+  if (filtered.length === 0) {
+    delete hooks.afterFileEdit;
+  } else {
+    hooks.afterFileEdit = filtered;
+  }
+
+  writeFileSync(hooksPath, JSON.stringify(data, null, 2) + "\n", "utf-8");
+  return true;
+}
+
 const program = new Command();
 
 program
@@ -20,8 +64,32 @@ program
   .version(pkg.version);
 
 program
-  .option("--setup", "Install the Cursor hook and rules")
-  .action(async (options: { setup?: boolean }) => {
+  .option("--setup", "Install the Cursor rule")
+  .option("--uninstall", "Remove all CPR files (rule + legacy hook)")
+  .action(async (options: { setup?: boolean; uninstall?: boolean }) => {
+    if (options.uninstall) {
+      console.log("\nCPR — Uninstalling...\n");
+      const cursorDir = join(homedir(), ".cursor");
+
+      const rulePath = join(cursorDir, "rules", "plan-preview.mdc");
+      if (existsSync(rulePath)) {
+        unlinkSync(rulePath);
+        console.log(`  Removed ${rulePath}`);
+      } else {
+        console.log("  Rule file not found (already removed)");
+      }
+
+      const hooksPath = join(cursorDir, "hooks.json");
+      if (removeHookEntry(hooksPath)) {
+        console.log(`  Removed hook entry from ${hooksPath}`);
+      } else {
+        console.log("  No hook entry found (already clean)");
+      }
+
+      console.log("\n\u2713 CPR uninstalled.\n");
+      return;
+    }
+
     if (options.setup) {
       const setupPath = new URL("../agent-config/setup.mjs", import.meta.url)
         .href;
