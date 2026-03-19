@@ -1,0 +1,79 @@
+{
+  "name": "cursor-plan-preview",
+  "version": "0.1.0",
+  "description": "Visual plan preview and team sharing for Cursor's plan mode. Open plans in a beautiful browser UI, annotate inline, share with your team.",
+  "type": "module",
+  "bin": {
+    "cursor-plan-preview": "./dist/cli.js"
+  },
+  "files": [
+    "dist",
+    "agent-config"
+  ],
+  "scripts": {
+    "build": "npm run build:cli && npm run build:ui",
+    "build:cli": "tsup",
+    "build:ui": "vite build",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "lint": "eslint . && prettier --check .",
+    "format": "prettier --write .",
+    "prepare": "husky",
+    "dev:ui": "vite"
+  },
+  "lint-staged": {
+    "*.{ts,tsx,js,mjs}": [
+      "eslint --fix",
+      "prettier --write"
+    ],
+    "*.{json,md,yml,yaml}": [
+      "prettier --write"
+    ]
+  },
+  "keywords": [
+    "cursor",
+    "plan",
+    "preview",
+    "share",
+    "team",
+    "annotation",
+    "review",
+    "agent",
+    "ai"
+  ],
+  "author": "Ofer Shapira",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ofershap/cursor-plan-preview.git"
+  },
+  "bugs": {
+    "url": "https://github.com/ofershap/cursor-plan-preview/issues"
+  },
+  "homepage": "https://github.com/ofershap/cursor-plan-preview#readme",
+  "engines": {
+    "node": ">=20"
+  },
+  "dependencies": {
+    "commander": "^13.1.0"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.21.0",
+    "@types/node": "^22.0.0",
+    "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.0.0",
+    "@vitejs/plugin-react": "^4.3.0",
+    "eslint": "^9.21.0",
+    "husky": "^9.1.7",
+    "lint-staged": "^15.4.3",
+    "prettier": "^3.5.3",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "tsup": "^8.4.0",
+    "typescript": "^5.7.3",
+    "typescript-eslint": "^8.25.0",
+    "vite": "^6.0.0",
+    "vitest": "^3.0.7"
+  }
+}
