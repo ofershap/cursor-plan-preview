@@ -50,6 +50,7 @@ function serveStaticFile(res: ServerResponse, filePath: string): boolean {
 export interface ServerOptions {
   planFile: string;
   port?: number;
+  workspaceDir?: string;
 }
 
 function gitCmd(cwd: string, args: string): string | undefined {
@@ -60,8 +61,8 @@ function gitCmd(cwd: string, args: string): string | undefined {
   }
 }
 
-function getGitMeta(planFile: string): PlanMeta {
-  const cwd = dirname(planFile);
+function getGitMeta(planFile: string, workspaceDir?: string): PlanMeta {
+  const cwd = workspaceDir ?? dirname(planFile);
   const meta: PlanMeta = {};
 
   const remoteUrl = gitCmd(cwd, "remote get-url origin");
@@ -81,7 +82,7 @@ export function startServer(
 ): Promise<{ port: number; url: string }> {
   return new Promise((resolve, reject) => {
     const plan = parsePlanFile(options.planFile);
-    plan.meta = getGitMeta(options.planFile);
+    plan.meta = getGitMeta(options.planFile, options.workspaceDir);
     const uiDir = getUiDir();
 
     const server = createServer((req: IncomingMessage, res: ServerResponse) => {

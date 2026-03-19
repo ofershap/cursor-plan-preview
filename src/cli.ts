@@ -156,7 +156,11 @@ program
     }
 
     const port = parseInt(opts.port, 10);
-    const { url } = await startServer({ planFile: filePath, port });
+    const { url } = await startServer({
+      planFile: filePath,
+      port,
+      workspaceDir: process.cwd(),
+    });
     console.log(`CPR Preview running at ${url}\n`);
     openBrowser(url);
   });
