@@ -403,9 +403,9 @@ function LandingPage() {
           <span className="logo-text">CPR</span>
         </div>
         <h1 className="landing-headline">
-          Review agent plans.
+          Review agent plans
           <br />
-          <span className="headline-dim">Not in the terminal.</span>
+          <span className="headline-dim">Not in the terminal</span>
         </h1>
         <p className="landing-sub">
           Coding agents moved the bottleneck from writing code to planning it. A
