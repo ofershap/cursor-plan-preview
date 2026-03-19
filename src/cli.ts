@@ -6,6 +6,7 @@ import {
   statSync,
   writeFileSync,
   unlinkSync,
+  rmSync,
 } from "fs";
 import { join, dirname } from "path";
 import { fileURLToPath } from "url";
@@ -77,6 +78,14 @@ program
         console.log(`  Removed ${rulePath}`);
       } else {
         console.log("  Rule file not found (already removed)");
+      }
+
+      const skillDir = join(cursorDir, "skills", "share-plan");
+      if (existsSync(skillDir)) {
+        rmSync(skillDir, { recursive: true });
+        console.log(`  Removed ${skillDir}`);
+      } else {
+        console.log("  Skill not found (already removed)");
       }
 
       const hooksPath = join(cursorDir, "hooks.json");

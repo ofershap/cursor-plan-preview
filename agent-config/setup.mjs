@@ -28,8 +28,23 @@ export async function runSetup() {
   copyFileSync(ruleSrc, ruleDest);
   console.log(`  Installed rule -> ${ruleDest}`);
 
+  console.log("Installing /share-plan skill...");
+  const skillDir = join(cursorDir, "skills", "share-plan");
+  ensureDir(skillDir);
+  const skillSrc = join(
+    __dirname,
+    "cursor",
+    "skills",
+    "share-plan",
+    "SKILL.md",
+  );
+  const skillDest = join(skillDir, "SKILL.md");
+  copyFileSync(skillSrc, skillDest);
+  console.log(`  Installed skill -> ${skillDest}`);
+
   console.log("\n\u2713 CPR installed successfully!\n");
-  console.log("After Cursor creates a plan, run:");
+  console.log("You can now use /share-plan in Cursor chat,");
+  console.log("or run directly in terminal:");
   console.log("  cursor-plan-preview share-plan\n");
   console.log("The agent will also remind you when a plan is ready.\n");
 }

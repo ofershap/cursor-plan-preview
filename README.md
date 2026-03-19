@@ -61,9 +61,9 @@ No accounts. No backend. The URL contains everything.
 npx cursor-plan-preview --setup
 ```
 
-This installs a Cursor rule that reminds the agent to suggest sharing after every plan.
+This installs a Cursor rule and a `/share-plan` slash command.
 
-After the agent creates a plan, share it:
+After the agent creates a plan, share it — type `/share-plan` in Cursor chat, or run in terminal:
 
 ```bash
 npx cursor-plan-preview share-plan
@@ -127,9 +127,10 @@ After teammates annotate and share back:
 
 `npx cursor-plan-preview --setup` installs one file:
 
-| File                               | What it does                                                            |
-| ---------------------------------- | ----------------------------------------------------------------------- |
-| `~/.cursor/rules/plan-preview.mdc` | Agent rule: suggests `share-plan` after every plan, checks for feedback |
+| File                                   | What it does                                                            |
+| -------------------------------------- | ----------------------------------------------------------------------- |
+| `~/.cursor/rules/plan-preview.mdc`     | Agent rule: suggests `share-plan` after every plan, checks for feedback |
+| `~/.cursor/skills/share-plan/SKILL.md` | `/share-plan` slash command in Cursor chat                              |
 
 To remove everything:
 
