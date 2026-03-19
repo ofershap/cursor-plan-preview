@@ -566,13 +566,14 @@ function LandingPage({
       <div className="landing-hero">
         <div className="landing-badge">For Cursor IDE</div>
         <h1 className="landing-headline">
-          Review agent plans.
+          Share agent plans
           <br />
-          <span className="headline-dim">Before they build.</span>
+          <span className="headline-dim">with your team.</span>
         </h1>
         <p className="landing-sub">
-          Visual plan review for Cursor. Annotate inline, share with your team,
-          get feedback back to the agent. No backend, no accounts.
+          Let your team review and annotate Cursor plans before the agent
+          builds. One link, no accounts, no backend — feedback flows back
+          automatically.
         </p>
         <div className="landing-ctas">
           <div className="landing-install">
