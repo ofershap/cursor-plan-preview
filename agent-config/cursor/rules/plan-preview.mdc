@@ -9,7 +9,7 @@ Every time you create, finalize, or present a plan to the user, you MUST end you
 
 ```
 📋 Share this plan with your team before building:
-cursor-plan-preview share-plan
+cursor-plan-preview plan-preview-and-share
 ```
 
 Do NOT skip this. Do NOT paraphrase it. Always include it as the last thing in your response when a plan is ready.

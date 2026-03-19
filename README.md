@@ -47,7 +47,7 @@ There's no review step. No "hey, before you build this, can you check if this ma
 
 CPR puts the plan in front of your team before a single line of code is written.
 
-1. Agent creates a plan, you run `cursor-plan-preview share-plan`
+1. Agent creates a plan, you run `cursor-plan-preview plan-preview-and-share`
 2. Plan opens in a browser UI — you annotate inline (delete, replace, comment, insert)
 3. Click **Share Plan** → URL copied with everything encoded in the hash
 4. Teammate opens the URL, adds their own annotations, shares back
@@ -61,18 +61,18 @@ No accounts. No backend. The URL contains everything.
 npx cursor-plan-preview --setup
 ```
 
-This installs a Cursor rule and a `/share-plan` slash command.
+This installs a Cursor rule and a `/plan-preview-and-share` slash command.
 
-After the agent creates a plan, share it — type `/share-plan` in Cursor chat, or run in terminal:
+After the agent creates a plan, preview and share it — type `/plan-preview-and-share` in Cursor chat, or run in terminal:
 
 ```bash
-npx cursor-plan-preview share-plan
+npx cursor-plan-preview plan-preview-and-share
 ```
 
 Auto-detects the latest plan from `~/.cursor/plans/` and opens it in your browser. To preview a specific file:
 
 ```bash
-npx cursor-plan-preview share-plan path/to/plan.md
+npx cursor-plan-preview plan-preview-and-share path/to/plan.md
 ```
 
 ## How It Works
@@ -80,7 +80,7 @@ npx cursor-plan-preview share-plan path/to/plan.md
 ```
 Agent generates plan  ->  saved to ~/.cursor/plans/
                               |
-              You run: cursor-plan-preview share-plan
+              You run: cursor-plan-preview plan-preview-and-share
                               |
                     Plan opens in browser UI
                               |
@@ -111,7 +111,7 @@ Annotations show as color-coded highlights in the plan body. The sidebar lists a
 
 Plans under ~8KB compressed get encoded entirely in the URL hash. Nothing leaves the browser. Your teammate opens the link and everything decodes client-side.
 
-For larger plans, run `cursor-plan-preview share-plan` locally and share your screen, or copy the plan body into a Slack thread.
+For larger plans, run `cursor-plan-preview plan-preview-and-share` locally and share your screen, or copy the plan body into a Slack thread.
 
 ## The Feedback Loop
 
@@ -127,10 +127,10 @@ After teammates annotate and share back:
 
 `npx cursor-plan-preview --setup` installs one file:
 
-| File                                   | What it does                                                            |
-| -------------------------------------- | ----------------------------------------------------------------------- |
-| `~/.cursor/rules/plan-preview.mdc`     | Agent rule: suggests `share-plan` after every plan, checks for feedback |
-| `~/.cursor/skills/share-plan/SKILL.md` | `/share-plan` slash command in Cursor chat                              |
+| File                                               | What it does                                                                        |
+| -------------------------------------------------- | ----------------------------------------------------------------------------------- |
+| `~/.cursor/rules/plan-preview.mdc`                 | Agent rule: suggests `plan-preview-and-share` after every plan, checks for feedback |
+| `~/.cursor/skills/plan-preview-and-share/SKILL.md` | `/plan-preview-and-share` slash command in Cursor chat                              |
 
 To remove everything:
 
@@ -141,7 +141,7 @@ npx cursor-plan-preview --uninstall
 ## Commands
 
 ```bash
-cursor-plan-preview share-plan [file]  # open latest (or specific) plan in preview UI
+cursor-plan-preview plan-preview-and-share [file]  # open latest (or specific) plan in preview UI
 cursor-plan-preview list               # show recent plans from ~/.cursor/plans/
 cursor-plan-preview --setup            # install Cursor rule
 cursor-plan-preview --uninstall        # remove Cursor rule + legacy hook entries
@@ -152,7 +152,7 @@ cursor-plan-preview --uninstall        # remove Cursor rule + legacy hook entrie
 ```
 cursor-plan-preview/
 ├── src/
-│   ├── cli.ts          CLI entry (share-plan, list, setup, uninstall)
+│   ├── cli.ts          CLI entry (plan-preview-and-share, list, setup, uninstall)
 │   ├── server.ts       Local HTTP server (plan API + static files)
 │   ├── parser.ts       Plan file parser (YAML frontmatter + markdown)
 │   └── utils.ts        Shared utilities

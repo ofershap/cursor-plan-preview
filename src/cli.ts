@@ -80,7 +80,7 @@ program
         console.log("  Rule file not found (already removed)");
       }
 
-      const skillDir = join(cursorDir, "skills", "share-plan");
+      const skillDir = join(cursorDir, "skills", "plan-preview-and-share");
       if (existsSync(skillDir)) {
         rmSync(skillDir, { recursive: true });
         console.log(`  Removed ${skillDir}`);
@@ -129,7 +129,7 @@ function getLatestPlan(plansDir: string): string | null {
 }
 
 program
-  .command("share-plan [file]")
+  .command("plan-preview-and-share [file]")
   .description(
     "Open the latest plan (or a specific file) in the preview UI for sharing",
   )
@@ -187,7 +187,7 @@ program
     files.forEach((f, i) => {
       console.log(`  ${i + 1}. ${f}`);
     });
-    console.log("\nRun: cursor-plan-preview share-plan\n");
+    console.log("\nRun: cursor-plan-preview plan-preview-and-share\n");
   });
 
 program.parse();
