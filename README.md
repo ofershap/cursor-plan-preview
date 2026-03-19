@@ -38,12 +38,12 @@ That's it. Restart Cursor. The next time the agent saves a plan, it opens automa
 
 ## Annotation types
 
-| Type | What it does |
-|------|-------------|
-| ✂ Delete | Mark text for removal |
-| ↔ Replace | Suggest replacement text |
-| 💬 Comment | Add a note to specific text |
-| + Insert | Add new text at a point |
+| Type        | What it does                         |
+| ----------- | ------------------------------------ |
+| ✂ Delete    | Mark text for removal                |
+| ↔ Replace   | Suggest replacement text             |
+| 💬 Comment  | Add a note to specific text          |
+| + Insert    | Add new text at a point              |
 | Global Note | Add a note not tied to specific text |
 
 ## Sharing

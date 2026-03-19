@@ -1,0 +1,13 @@
+{
+  "buildCommand": "npm run build:ui",
+  "outputDirectory": "dist/ui",
+  "functions": {
+    "api/*.ts": {
+      "runtime": "@vercel/node"
+    }
+  },
+  "rewrites": [
+    { "source": "/api/(.*)", "destination": "/api/$1" },
+    { "source": "/(.*)", "destination": "/index.html" }
+  ]
+}
