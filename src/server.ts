@@ -2,7 +2,9 @@ import { createServer, type IncomingMessage, type ServerResponse } from "http";
 import { readFileSync, existsSync, writeFileSync, statSync } from "fs";
 import { join, dirname, extname } from "path";
 import { fileURLToPath } from "url";
+import { execSync } from "child_process";
 import { parsePlanFile } from "./parser.js";
+import type { PlanMeta } from "./types.js";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
@@ -50,11 +52,36 @@ export interface ServerOptions {
   port?: number;
 }
 
+function gitCmd(cwd: string, args: string): string | undefined {
+  try {
+    return execSync(`git ${args}`, { cwd, encoding: "utf-8" }).trim();
+  } catch {
+    return undefined;
+  }
+}
+
+function getGitMeta(planFile: string): PlanMeta {
+  const cwd = dirname(planFile);
+  const meta: PlanMeta = {};
+
+  const remoteUrl = gitCmd(cwd, "remote get-url origin");
+  if (remoteUrl) {
+    const match = remoteUrl.match(/[/:]([^/]+\/[^/.]+?)(?:\.git)?$/);
+    meta.repo = match?.[1] ?? remoteUrl;
+  }
+
+  meta.branch = gitCmd(cwd, "rev-parse --abbrev-ref HEAD");
+  meta.sharedBy = gitCmd(cwd, "config user.name");
+
+  return meta;
+}
+
 export function startServer(
   options: ServerOptions,
 ): Promise<{ port: number; url: string }> {
   return new Promise((resolve, reject) => {
     const plan = parsePlanFile(options.planFile);
+    plan.meta = getGitMeta(options.planFile);
     const uiDir = getUiDir();
 
     const server = createServer((req: IncomingMessage, res: ServerResponse) => {

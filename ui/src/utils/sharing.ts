@@ -1,4 +1,9 @@
-import type { Annotation, SharePayload, SerializedAnnotation } from "../types";
+import type {
+  Annotation,
+  PlanMeta,
+  SharePayload,
+  SerializedAnnotation,
+} from "../types";
 
 function toBase64Url(bytes: Uint8Array): string {
   return btoa(String.fromCharCode(...bytes))
@@ -134,7 +139,7 @@ function deserializeAnnotation(s: SerializedAnnotation): Annotation {
 const SHARE_BASE_URL = "https://ofershap.github.io/cursor-plan-preview/";
 
 export async function encodeShareUrl(
-  plan: { name: string; overview: string; body: string },
+  plan: { name: string; overview: string; body: string; meta?: PlanMeta },
   annotations: Annotation[],
 ): Promise<string> {
   const payload: SharePayload = {
@@ -143,6 +148,13 @@ export async function encodeShareUrl(
     o: plan.overview,
     a: annotations.map(serializeAnnotation),
   };
+  if (plan.meta) {
+    const m: SharePayload["m"] = {};
+    if (plan.meta.repo) m.r = plan.meta.repo;
+    if (plan.meta.branch) m.b = plan.meta.branch;
+    if (plan.meta.sharedBy) m.s = plan.meta.sharedBy;
+    if (Object.keys(m).length > 0) payload.m = m;
+  }
   const json = JSON.stringify(payload);
   const compressed = await compress(json);
   const encoded = toBase64Url(compressed);
@@ -150,7 +162,7 @@ export async function encodeShareUrl(
 }
 
 export async function decodeShareUrl(hash: string): Promise<{
-  plan: { name: string; overview: string; body: string };
+  plan: { name: string; overview: string; body: string; meta?: PlanMeta };
   annotations: Annotation[];
 } | null> {
   try {
@@ -159,8 +171,17 @@ export async function decodeShareUrl(hash: string): Promise<{
     const bytes = fromBase64Url(clean);
     const json = await decompress(bytes);
     const payload = JSON.parse(json) as SharePayload;
+    const meta: PlanMeta = {};
+    if (payload.m?.r) meta.repo = payload.m.r;
+    if (payload.m?.b) meta.branch = payload.m.b;
+    if (payload.m?.s) meta.sharedBy = payload.m.s;
     return {
-      plan: { name: payload.n, overview: payload.o, body: payload.p },
+      plan: {
+        name: payload.n,
+        overview: payload.o,
+        body: payload.p,
+        ...(Object.keys(meta).length > 0 ? { meta } : {}),
+      },
       annotations: payload.a.map(deserializeAnnotation),
     };
   } catch {

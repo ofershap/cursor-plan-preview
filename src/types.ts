@@ -4,6 +4,12 @@ export interface PlanTodo {
   status: "pending" | "in_progress" | "completed" | "cancelled";
 }
 
+export interface PlanMeta {
+  repo?: string;
+  branch?: string;
+  sharedBy?: string;
+}
+
 export interface ParsedPlan {
   name: string;
   overview: string;
@@ -11,4 +17,5 @@ export interface ParsedPlan {
   isProject: boolean;
   body: string;
   filePath: string;
+  meta?: PlanMeta;
 }

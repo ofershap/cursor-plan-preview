@@ -930,8 +930,35 @@ export default function App() {
 
       {sharedMode && (
         <div className="reviewer-banner">
-          You're reviewing <strong>{plan.name}</strong>. Add your notes below,
-          then click <strong>Finish Review</strong> to send it back.
+          <span>
+            You're reviewing <strong>{plan.name}</strong>
+            {plan.meta?.repo && (
+              <span className="reviewer-meta">
+                {" "}
+                in{" "}
+                <a
+                  href={`https://github.com/${plan.meta.repo}`}
+                  target="_blank"
+                  rel="noopener"
+                >
+                  {plan.meta.repo}
+                </a>
+                {plan.meta.branch && plan.meta.branch !== "main" && (
+                  <> ({plan.meta.branch})</>
+                )}
+              </span>
+            )}
+            {plan.meta?.sharedBy && (
+              <span className="reviewer-meta">
+                {" "}
+                — shared by {plan.meta.sharedBy}
+              </span>
+            )}
+          </span>
+          <span>
+            . Add your notes below, then click <strong>Finish Review</strong> to
+            send it back.
+          </span>
         </div>
       )}
 

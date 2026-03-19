@@ -4,6 +4,12 @@ export interface PlanTodo {
   status: "pending" | "in_progress" | "completed" | "cancelled";
 }
 
+export interface PlanMeta {
+  repo?: string;
+  branch?: string;
+  sharedBy?: string;
+}
+
 export interface ParsedPlan {
   name: string;
   overview: string;
@@ -11,6 +17,7 @@ export interface ParsedPlan {
   isProject: boolean;
   body: string;
   filePath: string;
+  meta?: PlanMeta;
 }
 
 export type AnnotationType =
@@ -37,6 +44,7 @@ export interface SharePayload {
   n: string;
   o: string;
   a: SerializedAnnotation[];
+  m?: { r?: string; b?: string; s?: string };
 }
 
 export type SerializedAnnotation = [string, ...string[]];

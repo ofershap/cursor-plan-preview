@@ -229,6 +229,16 @@ body {
   color: var(--amber);
 }
 
+.reviewer-meta a {
+  color: var(--blue);
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.reviewer-meta a:hover {
+  text-decoration: underline;
+}
+
 /* Toast */
 /* Finish Review Modal */
 .finish-review-backdrop {
