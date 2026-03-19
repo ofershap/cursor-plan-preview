@@ -313,8 +313,36 @@ function PlanViewer({
   );
 }
 
+function preprocessCursorMarkdown(md: string): string {
+  let result = md;
+
+  result = result.replace(
+    /```(\d+:\d+:.+?)\n([\s\S]*?)```/g,
+    (_match, info: string, code: string) => {
+      const parts = info.split(":");
+      if (parts.length >= 3) {
+        const startLine = parts[0];
+        const endLine = parts[1];
+        const filePath = parts.slice(2).join(":");
+        const lineRange =
+          startLine === endLine ? `L${startLine}` : `L${startLine}-${endLine}`;
+        return `<div class="code-ref-file">${filePath} (${lineRange})</div>\n\n\`\`\`\n${code}\`\`\``;
+      }
+      return _match;
+    },
+  );
+
+  result = result.replace(
+    /`\[([^\]]+)\]\(([^)]+)\)`/g,
+    (_match, text: string, href: string) => `[${text}](${href})`,
+  );
+
+  return result;
+}
+
 function renderMarkdown(markdown: string, annotations: Annotation[]): string {
-  let html = marked.parse(markdown) as string;
+  const processed = preprocessCursorMarkdown(markdown);
+  let html = marked.parse(processed) as string;
 
   for (const ann of annotations) {
     if (!ann.originalText) continue;
@@ -394,7 +422,7 @@ function ProductMockup() {
   );
 }
 
-function LandingPage() {
+function useTheme() {
   const [theme, setTheme] = useState<"dark" | "light">(() => {
     if (typeof window !== "undefined") {
       const stored = localStorage.getItem("cpr-theme");
@@ -410,6 +438,34 @@ function LandingPage() {
 
   const toggleTheme = () => setTheme((t) => (t === "dark" ? "light" : "dark"));
 
+  return { theme, toggleTheme };
+}
+
+function ThemeToggle({
+  theme,
+  toggleTheme,
+}: {
+  theme: "dark" | "light";
+  toggleTheme: () => void;
+}) {
+  return (
+    <button
+      className="theme-toggle"
+      onClick={toggleTheme}
+      title={`Switch to ${theme === "dark" ? "light" : "dark"} mode`}
+    >
+      {theme === "dark" ? "☀" : "🌙"}
+    </button>
+  );
+}
+
+function LandingPage({
+  theme,
+  toggleTheme,
+}: {
+  theme: "dark" | "light";
+  toggleTheme: () => void;
+}) {
   return (
     <div className="landing">
       <nav className="landing-nav">
@@ -436,13 +492,7 @@ function LandingPage() {
             >
               npm
             </a>
-            <button
-              className="theme-toggle"
-              onClick={toggleTheme}
-              title={`Switch to ${theme === "dark" ? "light" : "dark"} mode`}
-            >
-              {theme === "dark" ? "☀" : "🌙"}
-            </button>
+            <ThemeToggle theme={theme} toggleTheme={toggleTheme} />
           </div>
         </div>
       </nav>
@@ -640,6 +690,7 @@ function LandingPage() {
 }
 
 export default function App() {
+  const { theme, toggleTheme } = useTheme();
   const [plan, setPlan] = useState<ParsedPlan | null>(null);
   const [annotations, setAnnotations] = useState<Annotation[]>([]);
   const [shareUrl, setShareUrl] = useState<string | null>(null);
@@ -750,7 +801,7 @@ export default function App() {
   }
 
   if (!plan) {
-    return <LandingPage />;
+    return <LandingPage theme={theme} toggleTheme={toggleTheme} />;
   }
 
   return (
@@ -770,6 +821,7 @@ export default function App() {
               Export Feedback
             </button>
           )}
+          <ThemeToggle theme={theme} toggleTheme={toggleTheme} />
           <button className="btn-primary" onClick={handleShare}>
             {copied ? "Copied!" : "Share Plan"}
           </button>
