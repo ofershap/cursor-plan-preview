@@ -14,8 +14,8 @@
 </p>
 
 <p align="center">
-  Hooks into Cursor's plan mode, opens every plan in a browser UI,<br>
-  lets your team annotate inline, shares via a single URL. No server needed.
+  Visual plan review for Cursor. Annotate inline, share with your team,<br>
+  get feedback back to the agent. No backend, no accounts.
 </p>
 
 <p align="center">
@@ -47,13 +47,13 @@ There's no review step. No "hey, before you build this, can you check if this ma
 
 CPR puts the plan in front of your team before a single line of code is written.
 
-- The agent saves a plan, CPR opens it in a browser UI automatically
-- You highlight text, annotate inline (delete, replace, comment, insert)
-- Click "Share Plan" and paste the URL to your team
-- They add their own annotations and share back
-- You export the feedback, the agent reads it on the next prompt
+1. Agent creates a plan, you run `cursor-plan-preview share-plan`
+2. Plan opens in a browser UI — you annotate inline (delete, replace, comment, insert)
+3. Click **Share Plan** → URL copied with everything encoded in the hash
+4. Teammate opens the URL, adds their own annotations, shares back
+5. You export the feedback, the agent reads it on the next prompt
 
-No accounts. No backend for most plans. The URL contains everything.
+No accounts. No backend. The URL contains everything.
 
 ## Quick Start
 
@@ -61,12 +61,18 @@ No accounts. No backend for most plans. The URL contains everything.
 npx cursor-plan-preview --setup
 ```
 
-Restart Cursor. Next time the agent saves a plan, it opens in your browser.
+This installs a Cursor rule that reminds the agent to suggest sharing after every plan.
 
-To preview a specific plan:
+After the agent creates a plan, share it:
 
 ```bash
-npx cursor-plan-preview serve ~/.cursor/plans/my-plan_abc123.plan.md
+npx cursor-plan-preview share-plan
+```
+
+Auto-detects the latest plan from `~/.cursor/plans/` and opens it in your browser. To preview a specific file:
+
+```bash
+npx cursor-plan-preview share-plan path/to/plan.md
 ```
 
 ## How It Works
@@ -74,7 +80,7 @@ npx cursor-plan-preview serve ~/.cursor/plans/my-plan_abc123.plan.md
 ```
 Agent generates plan  ->  saved to ~/.cursor/plans/
                               |
-                    CPR hook fires on save
+              You run: cursor-plan-preview share-plan
                               |
                     Plan opens in browser UI
                               |
@@ -105,7 +111,7 @@ Annotations show as color-coded highlights in the plan body. The sidebar lists a
 
 Plans under ~8KB compressed get encoded entirely in the URL hash. Nothing leaves the browser. Your teammate opens the link and everything decodes client-side.
 
-For larger plans, use `cursor-plan-preview serve` and share your screen, or copy the plan body into a Slack thread.
+For larger plans, run `cursor-plan-preview share-plan` locally and share your screen, or copy the plan body into a Slack thread.
 
 ## The Feedback Loop
 
@@ -119,21 +125,25 @@ After teammates annotate and share back:
 
 ## What Gets Installed
 
-`npx cursor-plan-preview --setup` adds two things:
+`npx cursor-plan-preview --setup` installs one file:
 
-| File                               | What it does                                                 |
-| ---------------------------------- | ------------------------------------------------------------ |
-| `~/.cursor/hooks.json`             | Adds `afterFileEdit` hook entry (merges with existing hooks) |
-| `~/.cursor/rules/plan-preview.mdc` | Tells the agent to check for feedback before building        |
+| File                               | What it does                                                            |
+| ---------------------------------- | ----------------------------------------------------------------------- |
+| `~/.cursor/rules/plan-preview.mdc` | Agent rule: suggests `share-plan` after every plan, checks for feedback |
 
-Existing hooks (Superset, other tools) are preserved. The setup merges, never overwrites.
-
-## Manual Commands
+To remove everything:
 
 ```bash
-cursor-plan-preview serve <file>    # open any .plan.md in the preview UI
-cursor-plan-preview list            # show recent plans from ~/.cursor/plans/
-cursor-plan-preview --setup         # re-run setup
+npx cursor-plan-preview --uninstall
+```
+
+## Commands
+
+```bash
+cursor-plan-preview share-plan [file]  # open latest (or specific) plan in preview UI
+cursor-plan-preview list               # show recent plans from ~/.cursor/plans/
+cursor-plan-preview --setup            # install Cursor rule
+cursor-plan-preview --uninstall        # remove Cursor rule + legacy hook entries
 ```
 
 ## Architecture
@@ -141,8 +151,8 @@ cursor-plan-preview --setup         # re-run setup
 ```
 cursor-plan-preview/
 ├── src/
-│   ├── cli.ts          CLI entry + hook handler
-│   ├── server.ts       Local HTTP server (plan API + static files + feedback export)
+│   ├── cli.ts          CLI entry (share-plan, list, setup, uninstall)
+│   ├── server.ts       Local HTTP server (plan API + static files)
 │   ├── parser.ts       Plan file parser (YAML frontmatter + markdown)
 │   └── utils.ts        Shared utilities
 ├── ui/
