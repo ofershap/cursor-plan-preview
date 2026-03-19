@@ -19,7 +19,7 @@
 </p>
 
 <p align="center">
-  <a href="#quick-start"><img src="https://img.shields.io/badge/Try_It_Now-22c55e?style=for-the-badge&logoColor=white" alt="Try It Now" /></a>
+  <a href="https://ofershap.github.io/cursor-plan-preview/"><img src="https://img.shields.io/badge/Live_Preview-22c55e?style=for-the-badge&logoColor=white" alt="Live Preview" /></a>
   &nbsp;
   <a href="#quick-start"><img src="https://img.shields.io/badge/Install-3b82f6?style=for-the-badge&logoColor=white" alt="Install" /></a>
   &nbsp;
