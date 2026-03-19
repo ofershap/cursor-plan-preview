@@ -5,7 +5,12 @@
 <h1 align="center">cursor-plan-preview</h1>
 
 <p align="center">
-  <strong>Your agent writes a plan. Your team has no idea what it's about to build.</strong>
+  <strong>Your agent writes a plan. But your team has no idea what it's about to build.</strong>
+</p>
+
+<p align="center">
+  The bottleneck in agentic development isn't writing code anymore. It's getting the plan right.<br>
+  A bad plan burns tokens, wastes hours, and ships the wrong thing. Team review before execution isn't optional.
 </p>
 
 <p align="center">
