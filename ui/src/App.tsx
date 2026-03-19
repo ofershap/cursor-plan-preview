@@ -102,12 +102,14 @@ function CommentPopup({
   );
 }
 
-function FinishReviewModal({
+function ShareModal({
   url,
   onClose,
+  isReview,
 }: {
   url: string;
   onClose: () => void;
+  isReview: boolean;
 }) {
   const [copied, setCopied] = useState(true);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -116,11 +118,14 @@ function FinishReviewModal({
     <>
       <div className="finish-review-backdrop" onClick={onClose} />
       <div className="finish-review-modal">
-        <div className="finish-review-check">✓</div>
-        <h2 className="finish-review-title">Review complete</h2>
+        <div className="finish-review-check">{isReview ? "✓" : "🔗"}</div>
+        <h2 className="finish-review-title">
+          {isReview ? "Review complete" : "Link ready"}
+        </h2>
         <p className="finish-review-desc">
-          Your notes are saved in the link below. Send it back to the developer
-          so they can incorporate your feedback.
+          {isReview
+            ? "Your notes are saved in the link below. Send it back to the developer so they can incorporate your feedback."
+            : "The plan and your annotations are compressed into this link. Share it with your team for review."}
         </p>
         <div className="finish-review-url">
           <input
@@ -754,12 +759,11 @@ export default function App() {
   const { theme, toggleTheme } = useTheme();
   const [plan, setPlan] = useState<ParsedPlan | null>(null);
   const [annotations, setAnnotations] = useState<Annotation[]>([]);
-  const [toast, setToast] = useState<string | null>(null);
   const [highlightedText, setHighlightedText] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [sharedMode, setSharedMode] = useState(false);
   const [exportedPath, setExportedPath] = useState<string | null>(null);
-  const [finishReviewUrl, setFinishReviewUrl] = useState<string | null>(null);
+  const [shareUrl, setShareUrl] = useState<string | null>(null);
   const hasSharedRef = useRef(false);
   const initialAnnotationCount = useRef(0);
 
@@ -851,23 +855,12 @@ export default function App() {
     }
   }, [addAnnotation]);
 
-  function showToast(msg: string) {
-    setToast(msg);
-    setTimeout(() => setToast(null), 4000);
-  }
-
   const handleShare = async () => {
     if (!plan) return;
     const url = await encodeShareUrl(plan, annotations);
     hasSharedRef.current = true;
-    if (sharedMode) {
-      await navigator.clipboard.writeText(url);
-      setFinishReviewUrl(url);
-    } else {
-      await navigator.clipboard.writeText(url);
-      window.open(url, "_blank");
-      showToast("Link copied to clipboard — share it with your team");
-    }
+    await navigator.clipboard.writeText(url);
+    setShareUrl(url);
   };
 
   const handleExportFeedback = async () => {
@@ -942,14 +935,13 @@ export default function App() {
         </div>
       )}
 
-      {finishReviewUrl && (
-        <FinishReviewModal
-          url={finishReviewUrl}
-          onClose={() => setFinishReviewUrl(null)}
+      {shareUrl && (
+        <ShareModal
+          url={shareUrl}
+          onClose={() => setShareUrl(null)}
+          isReview={sharedMode}
         />
       )}
-
-      {toast && <div className="toast">{toast}</div>}
 
       <div className="layout">
         <PlanViewer
